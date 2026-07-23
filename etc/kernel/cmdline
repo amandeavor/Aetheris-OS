@@ -1,0 +1,1 @@
+root=UUID=auto rw quiet loglevel=3 mitigations=off zswap.enabled=0 preempt=full threadirqs amdgpu.freesync_video=1

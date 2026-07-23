@@ -1,0 +1,20 @@
+# Mako notification daemon configuration for Aetheris OS
+# Styled to align with the Prismatic Ultraviolet design language
+
+# Core styling
+font=Nacelle 11
+background-color=#080A0F
+text-color=#FAF9F6
+border-color=#6366F1
+border-size=1
+border-radius=8
+padding=16
+
+# Behavior settings
+max-visible=5
+default-timeout=5000
+
+# High-contrast action states
+[urgency=high]
+border-color=#F0561D
+default-timeout=0

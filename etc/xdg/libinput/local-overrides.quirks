@@ -1,0 +1,7 @@
+# libinput Pointer Acceleration Override for Gaming Mice
+# Enforces a flat pointer acceleration profile for low latency and raw input precision.
+
+[Gaming Mouse Profile]
+MatchUdevType=mouse
+MatchName=*Gaming*
+AttrPointerAccelerationProfile=flat

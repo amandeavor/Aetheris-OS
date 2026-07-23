@@ -1,0 +1,20 @@
+# Template file for 'chwd-port'
+pkgname=chwd-port
+version=0.1.0
+revision=1
+build_style=cargo
+cargo_srcdir="chwd_port"
+short_desc="CachyOS Hardware Detection engine ported to Void/Aetheris OS"
+maintainer="Aetheris OS Driver Team <drivers@aetheris-os.org>"
+license="GPL-3.0-only"
+homepage="https://github.com/aetheris-os/chwd_port"
+depends="pciutils usbutils"
+
+do_install() {
+    # Install the compiled Rust binary
+    vbin chwd_port/target/x86_64-unknown-linux-gnu/release/chwd_port chwd
+
+    # Install driver profile mappings
+    vmkdir usr/share/chwd/profiles/pci
+    vcopy chwd_port/profiles/*.toml usr/share/chwd/profiles/pci/
+}

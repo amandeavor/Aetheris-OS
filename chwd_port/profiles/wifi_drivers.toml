@@ -1,0 +1,65 @@
+# Driver profiles for wireless network cards
+# File: /usr/share/chwd/profiles/pci/wifi_drivers.toml
+
+[intel-ax210-be200]
+desc = "Intel AX210 / BE200 WiFi 6E/7 Card"
+priority = 10
+class_ids = ["0280"]
+vendor_ids = ["8086"]
+device_ids = ["2725", "272b", "a0f0"]
+packages = "linux-firmware-intel"
+
+[intel-legacy-wifi]
+desc = "Intel 3945ABG / 4965AGN Wireless Adapter"
+priority = 8
+class_ids = ["0280"]
+vendor_ids = ["8086"]
+device_ids = ["4222", "4227", "4229", "4230"]
+packages = "linux-firmware"
+
+[realtek-rtw88]
+desc = "Realtek RTL8821CE / RTL8822CE Wireless Adapter"
+priority = 9
+class_ids = ["0280"]
+vendor_ids = ["10ec"]
+device_ids = ["c821", "c822"]
+packages = "linux-firmware-realtek"
+
+[realtek-rtw89]
+desc = "Realtek RTL8852AE / RTL8922AE Wireless Adapter"
+priority = 10
+class_ids = ["0280"]
+vendor_ids = ["10ec"]
+device_ids = ["8852", "8922"]
+packages = "linux-firmware-realtek"
+
+[realtek-rtl8812au-usb]
+desc = "Realtek RTL8812AU USB Wireless Dongle"
+priority = 10
+usb_ids = ["0bda:8812", "0bda:881a"]
+packages = "rtl8812au-dkms"
+
+[mediatek-mt76]
+desc = "MediaTek MT7921 / MT7925 Wireless Adapter"
+priority = 10
+class_ids = ["0280"]
+vendor_ids = ["14c3"]
+device_ids = ["7961", "7925"]
+packages = "linux-firmware-mediatek"
+
+[broadcom-brcmfmac]
+desc = "Broadcom BCM43602 / BCM43455 Wireless Card (Open Firmware)"
+priority = 8
+class_ids = ["0280"]
+vendor_ids = ["14e4"]
+device_ids = ["43ba", "43e3"]
+packages = "linux-firmware"
+
+[broadcom-wl]
+desc = "Broadcom BCM43142 / BCM4360 Wireless Card (Proprietary wl driver)"
+priority = 9
+class_ids = ["0280"]
+vendor_ids = ["14e4"]
+device_ids = ["4365", "43a0", "4352"]
+packages = "broadcom-wl-dkms"
+pre_install = "echo 'blacklist brcmsmac' > /etc/modprobe.d/broadcom-wl.conf"

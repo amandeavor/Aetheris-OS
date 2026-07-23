@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Exec Guard MSI Installer
+Comment=Run Windows MSI Installers securely in Bubblewrap sandbox
+Exec=/usr/bin/exec-guard-wrapper %f
+Icon=wine
+Terminal=false
+NoDisplay=true
+MimeType=application/x-msi;

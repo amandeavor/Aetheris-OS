@@ -1,0 +1,125 @@
+#!/bin/bash
+# File: /usr/bin/aetheris-uki-sign
+# Custom UKI (Unified Kernel Image) Building and Signing script for Aetheris OS.
+
+set -eo pipefail
+
+# Constants
+KEY_DIR="/etc/efi-keys"
+MOK_KEY="$KEY_DIR/MOK.key"
+MOK_CRT="$KEY_DIR/MOK.crt"
+CMDLINE_FILE="/etc/kernel/cmdline"
+EFI_STUB="/usr/lib/systemd/boot/efi/linuxx64.efi.stub"
+OUT_DIR="/boot/EFI/aetheris"
+OUT_EFI="$OUT_DIR/aetheris-signed.efi"
+
+echo "=== Aetheris OS Unified Kernel Image (UKI) Builder & Signer ==="
+
+# 1. Root verification
+if [ "$EUID" -ne 0 ]; then
+    echo "Error: This script must be run as root." >&2
+    exit 1
+fi
+
+# 2. Key verification
+if [ ! -f "$MOK_KEY" ] || [ ! -f "$MOK_CRT" ]; then
+    echo "Warning: Custom MOK signing keys not found in $KEY_DIR."
+    echo "Attempting to generate self-signed Machine Owner Keys..."
+    mkdir -p "$KEY_DIR"
+    chmod 700 "$KEY_DIR"
+
+    openssl req -new -x509 -newkey rsa:2048 \
+        -keyout "$MOK_KEY" -out "$MOK_CRT" \
+        -nodes -days 3650 \
+        -subj "/CN=Aetheris OS Machine Owner Key/"
+
+    chmod 600 "$MOK_KEY"
+    echo "Keys generated successfully."
+fi
+
+# 3. Input validation
+KERNEL_BIN=$(ls -1 /boot/vmlinuz-linux-aetheris* 2>/dev/null | head -n 1 || true)
+INITRAMFS_IMG=$(ls -1 /boot/initramfs-linux-aetheris* 2>/dev/null | head -n 1 || true)
+
+if [ -z "$KERNEL_BIN" ] || [ ! -f "$KERNEL_BIN" ]; then
+    echo "Error: Target Aetheris kernel vmlinuz not found in /boot." >&2
+    exit 1
+fi
+
+if [ -z "$INITRAMFS_IMG" ] || [ ! -f "$INITRAMFS_IMG" ]; then
+    echo "Error: Target initramfs image not found in /boot." >&2
+    exit 1
+fi
+
+if [ ! -f "$EFI_STUB" ]; then
+    # Fallback to systemd-boot EFI stub locations on Void Linux
+    EFI_STUB="/usr/lib/gummiboot/linuxx64.efi.stub"
+    if [ ! -f "$EFI_STUB" ]; then
+        echo "Error: EFI stub (linuxx64.efi.stub) not found. Please install systemd-boot or gummiboot." >&2
+        exit 1
+    fi
+fi
+
+# Create default command line if not present
+if [ ! -f "$CMDLINE_FILE" ]; then
+    mkdir -p "$(dirname "$CMDLINE_FILE")"
+    echo "root=UUID=auto rw quiet loglevel=3 mitigations=off zswap.enabled=0" > "$CMDLINE_FILE"
+fi
+
+# 4. Building the UKI using objcopy
+TEMP_EFI=$(mktemp /tmp/aetheris-uki.XXXXXX.efi)
+trap 'rm -f "$TEMP_EFI"' EXIT
+
+echo "Building Unified Kernel Image using stub: $EFI_STUB..."
+objcopy \
+    --add-section .osrel="/usr/lib/os-release" --change-section-vma .osrel=0x20000 \
+    --add-section .cmdline="$CMDLINE_FILE" --change-section-vma .cmdline=0x30000 \
+    --add-section .linux="$KERNEL_BIN" --change-section-vma .linux=0x2000000 \
+    --add-section .initrd="$INITRAMFS_IMG" --change-section-vma .initrd=0x3000000 \
+    "$EFI_STUB" "$TEMP_EFI"
+
+# 5. Signing the UKI using sbsign
+mkdir -p "$OUT_DIR"
+
+if command -v sbsign >/dev/null 2>&1; then
+    echo "Signing Unified Kernel Image with MOK..."
+    sbsign --key "$MOK_KEY" --cert "$MOK_CRT" --output "$OUT_EFI" "$TEMP_EFI"
+    echo "Signed UKI deployed successfully to: $OUT_EFI"
+else
+    echo "Warning: sbsign not found on the system. Copying unsigned UKI..."
+    cp "$TEMP_EFI" "$OUT_EFI"
+    echo "Unsigned UKI deployed successfully to: $OUT_EFI"
+    echo "Please install sbsigntool to sign the kernel image for Secure Boot."
+fi
+
+# Secure permissions for the generated boot file
+chmod 600 "$OUT_EFI"
+
+# 6. Register Boot Entry in UEFI NVRAM via efibootmgr
+if command -v efibootmgr >/dev/null 2>&1; then
+    echo "Registering boot entry in UEFI NVRAM..."
+    # Find EFI System Partition device and partition number
+    EFI_MOUNT=$(findmnt -n -o SOURCE /boot/efi || findmnt -n -o SOURCE /boot || true)
+    if [ -n "$EFI_MOUNT" ]; then
+        DISK=$(lsblk -no PKNAME "$EFI_MOUNT" 2>/dev/null || true)
+        PART=$(lsblk -no MAJ:MIN "$EFI_MOUNT" 2>/dev/null | tr ':' ' ' | awk '{print $2}' || true)
+        if [ -n "$DISK" ] && [ -n "$PART" ]; then
+            # Clean existing boot entry if it exists to prevent duplicates
+            efibootmgr | grep -i "Aetheris OS" | awk '{print $1}' | tr -d '*' | tr -d 'Boot' | xargs -I {} efibootmgr -b {} -B >/dev/null 2>&1 || true
+
+            efibootmgr --create --disk "/dev/${DISK}" --part "${PART}" \
+                --label "Aetheris OS" \
+                --loader "\\EFI\\aetheris\\aetheris-signed.efi" \
+                --unicode
+            echo "UEFI NVRAM boot entry registered successfully."
+        else
+            echo "Warning: Failed to determine EFI disk or partition number."
+        fi
+    else
+        echo "Warning: /boot/efi is not mounted. Skipping NVRAM registration."
+    fi
+else
+    echo "Warning: efibootmgr not found. Deferring bootloader registration."
+fi
+
+echo "=== UKI Build and Sign Complete ==="

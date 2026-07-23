@@ -1,0 +1,40 @@
+# AppArmor Profile for Firefox Browser
+#include <tunables/global>
+
+/usr/bin/firefox {
+  #include <abstractions/base>
+  #include <abstractions/gnome>
+  #include <abstractions/nameservice>
+
+  # AppArmor 4.0 User Namespace Restriction Allowlist
+  userns,
+
+  # Allow network sockets
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
+  # Confinement: Deny access to active process memory spaces
+  deny @{PROC}/*/mem rw,
+
+  # Deny write access to security critical system files
+  deny /etc/passwd w,
+  deny /etc/shadow w,
+  deny /etc/sudoers w,
+
+  # Confinement: Restrict file system writes to Downloads folder only
+  owner @{HOME}/Downloads/ rw,
+  owner @{HOME}/Downloads/** rwk,
+
+  # Allow read access to configuration data and shared assets
+  owner @{HOME}/.mozilla/ rw,
+  owner @{HOME}/.mozilla/** rwk,
+  owner @{HOME}/.cache/mozilla/ rw,
+  owner @{HOME}/.cache/mozilla/** rwk,
+
+  /usr/share/themes/ r,
+  /usr/share/themes/** r,
+  /usr/share/icons/ r,
+  /usr/share/icons/** r,
+}

@@ -1,0 +1,19 @@
+# AppArmor Profile for Flatpak Application Container Manager
+#include <tunables/global>
+
+/usr/bin/flatpak {
+  #include <abstractions/base>
+
+  # AppArmor 4.0 User Namespace Restriction Allowlist
+  userns,
+
+  # Allow execution of bubblewrap sandboxes
+  /usr/bin/bwrap rpx,
+  /usr/libexec/flatpak-bwrap rpx,
+
+  # Allow reading local flatpak installations
+  /var/lib/flatpak/ r,
+  /var/lib/flatpak/** r,
+  owner @{HOME}/.local/share/flatpak/ r,
+  owner @{HOME}/.local/share/flatpak/** rw,
+}

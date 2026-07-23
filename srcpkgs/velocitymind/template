@@ -1,0 +1,25 @@
+# Template file for 'velocitymind'
+pkgname=velocitymind
+version=0.1.0
+revision=1
+build_style=meta
+short_desc="VelocityMind predictive preloader daemon for Aetheris OS"
+maintainer="Aetheris OS UX Team <preloader-maint@aetheris-os.org>"
+license="GPL-3.0-only"
+homepage="https://github.com/aetheris-os/velocitymind"
+depends="sqlite"
+hostmakedepends="gcc make pkg-config sqlite-devel"
+
+do_build() {
+    # Compile the preloader daemon directly from project source directory
+    gcc -Os -Wall -o velocitymind velocitymind/daemon.c -lsqlite3
+}
+
+do_install() {
+    # Install binary
+    vbin velocitymind
+
+    # Install runit service configuration
+    vmkdir etc/sv/velocitymind
+    vcopy etc/sv/velocitymind/run etc/sv/velocitymind/
+}

@@ -1,0 +1,18 @@
+# Game Controller Permissions and Virtual Input configurations for Aetheris OS
+
+# Xbox controllers (USB and Wireless)
+KERNEL=="hidraw*", ATTRS{idVendor}=="045e", MODE="0666", TAG+="uaccess"
+
+# DualShock 4 (PS4) controllers (USB and Bluetooth)
+KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="05c4", MODE="0666", TAG+="uaccess"
+KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="09cc", MODE="0666", TAG+="uaccess"
+
+# DualSense (PS5) controllers (USB and Bluetooth)
+KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="0ce6", MODE="0666", TAG+="uaccess"
+KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="0df2", MODE="0666", TAG+="uaccess"
+
+# Nintendo Switch Pro controllers (USB and Bluetooth)
+KERNEL=="hidraw*", ATTRS{idVendor}=="057e", ATTRS{idProduct}=="2009", MODE="0666", TAG+="uaccess"
+
+# Steam Controller and virtual Steam Input device rules
+KERNEL=="uinput", MODE="0660", GROUP="input", OPTIONS+="static_node=uinput", TAG+="uaccess"

@@ -1,0 +1,29 @@
+# File: /etc/sv/zram-init/run
+#!/bin/sh
+exec 2>&1
+
+# Verify zram kernel module availability
+if ! lsmod | grep -q "^zram"; then
+    modprobe zram num_devices=1 || exit 1
+fi
+
+# Explicitly wait for the udev node creation
+while [ ! -b /dev/zram0 ]; do
+    sleep 0.1
+done
+
+# Apply compressed target parameters via kernel sysfs nodes
+echo zstd > /sys/block/zram0/comp_algorithm
+
+# Compute physical memory limits to set the 150% ZRAM target size
+phys_mem=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+zram_target=$(( phys_mem * 1536 )) # Convert 1.50 multiplier directly into Kilobytes
+
+echo "${zram_target}" > /sys/block/zram0/disksize
+
+# Initialize the swap block and mount with high priority
+mkswap -U clear /dev/zram0
+swapon -p 100 --discard /dev/zram0
+
+# Keep the runit service resident to track lifecycle dependencies
+exec chpst -b zram-init-daemon pause

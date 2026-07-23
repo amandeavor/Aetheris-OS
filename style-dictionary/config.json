@@ -1,0 +1,37 @@
+{
+  "source": ["style-dictionary/tokens/base.json"],
+  "platforms": {
+    "gtk4": {
+      "transformGroup": "css",
+      "buildPath": "config/gtk-4.0/",
+      "files": [{
+        "destination": "gtk.css",
+        "format": "gtk4/css"
+      }]
+    },
+    "qt6": {
+      "transformGroup": "css",
+      "buildPath": "config/qt6ct/qss/",
+      "files": [{
+        "destination": "aetheris.qss",
+        "format": "qt6/qss"
+      }]
+    },
+    "labwc": {
+      "transformGroup": "css",
+      "buildPath": "config/labwc/",
+      "files": [{
+        "destination": "themerc",
+        "format": "labwc/themerc"
+      }]
+    },
+    "css": {
+      "transformGroup": "css",
+      "buildPath": "config/",
+      "files": [{
+        "destination": "theme.css",
+        "format": "css/variables"
+      }]
+    }
+  }
+}

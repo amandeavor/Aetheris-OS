@@ -1,0 +1,4 @@
+[Default Applications]
+application/x-ms-dos-executable=exec-guard.desktop
+application/x-msi=exec-guard-msi.desktop
+application/x-msdownload=exec-guard.desktop

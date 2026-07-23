@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Exec Guard Windows Executor
+Comment=Run Windows Executables securely in Bubblewrap sandbox
+Exec=/usr/bin/exec-guard-wrapper %f
+Icon=wine
+Terminal=false
+NoDisplay=true
+MimeType=application/x-ms-dos-executable;application/x-msdownload;

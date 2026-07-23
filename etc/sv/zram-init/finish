@@ -1,0 +1,5 @@
+# File: /etc/sv/zram-init/finish
+#!/bin/sh
+# Teardown procedure for system reboots or service restarts
+swapoff /dev/zram0
+echo 1 > /sys/block/zram0/reset

@@ -1,0 +1,20 @@
+# Template file for 'velocity-store'
+pkgname=velocity-store
+version=0.1.0
+revision=1
+build_style=cargo
+cargo_srcdir="velocitystore/src-tauri"
+short_desc="Tauri-based application software center for Aetheris OS"
+maintainer="Aetheris OS Store Team <store-maint@aetheris-os.org>"
+license="GPL-3.0-only"
+homepage="https://github.com/aetheris-os/velocitystore"
+depends="sqlite flatpak bottles"
+
+do_install() {
+    # Install compiled Tauri binary
+    vbin velocitystore/src-tauri/target/x86_64-unknown-linux-gnu/release/velocitystore velocity-store
+
+    # Install desktop shortcut launcher
+    vmkdir usr/share/applications
+    vcopy usr/share/applications/velocity-store.desktop usr/share/applications/
+}

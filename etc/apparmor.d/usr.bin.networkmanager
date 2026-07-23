@@ -1,0 +1,31 @@
+# AppArmor Profile for NetworkManager Daemon
+#include <tunables/global>
+
+/usr/sbin/NetworkManager {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  # Allow network driver and socket configurations
+  capability net_admin,
+  capability net_raw,
+  capability sys_module,
+
+  # Allow reading network statistics and parameters from proc
+  r @{PROC}/net/,
+  r @{PROC}/net/**,
+
+  # Confinement: Deny access to all user directories/home folders
+  deny @{HOME}/ rw,
+  deny @{HOME}/** rw,
+
+  # Allow configurations and status files access
+  /etc/NetworkManager/ r,
+  /etc/NetworkManager/** r,
+  /var/lib/NetworkManager/ rw,
+  /var/lib/NetworkManager/** rwk,
+  /run/NetworkManager/ rw,
+  /run/NetworkManager/** rwk,
+
+  # Allow standard dbus and logging systems
+  /usr/sbin/NetworkManager mr,
+}

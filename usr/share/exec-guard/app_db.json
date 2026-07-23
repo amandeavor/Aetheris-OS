@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "name": "Adobe Photoshop",
+      "executables": ["photoshop.exe", "photoshop_setup.exe"],
+      "alternative_source": "flatpak",
+      "alternative_package": "org.gimp.GIMP",
+      "message": "Aetheris OS recommended alternative: GIMP (native, highly optimized image editor)."
+    },
+    {
+      "name": "uTorrent",
+      "executables": ["utorrent.exe", "utorrent_installer.exe"],
+      "alternative_source": "xbps",
+      "alternative_package": "transmission-gtk",
+      "message": "Aetheris OS recommended alternative: Transmission (native, lightweight torrent client)."
+    }
+  ]
+}

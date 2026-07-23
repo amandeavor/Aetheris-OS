@@ -1,0 +1,39 @@
+#!/bin/bash
+# File: /usr/bin/labwc-wrapper
+set -eo pipefail
+
+CONFIG_DIR="$HOME/.config/labwc"
+mkdir -p "$CONFIG_DIR"
+
+# Source path validation and selection
+SRC_DIR=""
+if [ -d "/usr/share/aetheris/config/labwc" ]; then
+    SRC_DIR="/usr/share/aetheris/config/labwc"
+    echo "Using source configurations from: $SRC_DIR"
+elif [ -d "/etc/skel/.config/labwc" ]; then
+    SRC_DIR="/etc/skel/.config/labwc"
+    echo "Using source configurations from fallback: $SRC_DIR"
+else
+    echo "Error: Base configurations not found. Neither /usr/share/aetheris/config/labwc nor /etc/skel/.config/labwc exists." >&2
+    exit 1
+fi
+
+# Query /dev/dri/card0 to check for active GPU acceleration
+if [ -e "/dev/dri/card0" ]; then
+    echo "GPU acceleration detected. Deploying performance-tuned Labwc configuration."
+    cp "$SRC_DIR/rc.xml" "$CONFIG_DIR/rc.xml"
+else
+    echo "No GPU acceleration detected. Deploying fallback CPU-friendly Labwc configuration."
+    if [ -f "$SRC_DIR/rc-fallback.xml" ]; then
+        cp "$SRC_DIR/rc-fallback.xml" "$CONFIG_DIR/rc.xml"
+    else
+        echo "Warning: rc-fallback.xml not found. Defaulting to rc.xml."
+        cp "$SRC_DIR/rc.xml" "$CONFIG_DIR/rc.xml"
+    fi
+fi
+
+# Launch the focus monitoring hook in the background
+/usr/bin/velocitymind-focus-hook &
+
+# Launch the compositor
+exec labwc "$@"

@@ -1,0 +1,56 @@
+# File: /srcpkgs/linux-aetheris/template
+pkgname=linux-aetheris
+version=6.12.11
+revision=1
+build_style=gnu-makefile
+short_desc="Optimized Linux Kernel with Clang, ThinLTO, AutoFDO, BORE, and sched-ext"
+maintainer="Aetheris OS Kernel Team <kernel-maint@aetheris-os.org>"
+license="GPL-2.0-only"
+homepage="https://www.kernel.org"
+distfiles="https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.xz"
+checksum="da7ee3bc8f158ea9c819fa2bb97f7f347101a098ecad5eb123b37b42008b8b0e"
+bootstrap=yes
+
+# Explicit host dependencies required for ThinLTO and BTF parsing
+hostmakedepends="clang lld llvm rsync bc kmod libelf-devel pahole pkg-config perl openssl-devel tar xz curl"
+makedepends="libcap-devel elfutils-devel"
+
+pre_configure() {
+    msg_normal "Injecting x86-64-v3 architecture targets and compiler configurations...\n"
+    cp ${FILESDIR}/x86_64-dotconfig .config
+
+    # Apply required config variables programmatically
+    scripts/config --enable CONFIG_LTO_CLANG_THIN
+
+    if [ -f "${XBPS_SRCDIR}/linux-aetheris/files/kernel.afdo" ]; then
+        msg_normal "kernel.afdo profile found. Enabling AutoFDO compile-time optimizations.\n"
+        scripts/config --enable CONFIG_AUTOFDO_CLANG
+        scripts/config --set-str CONFIG_CLANG_AUTOFDO_PROFILE "${XBPS_SRCDIR}/linux-aetheris/files/kernel.afdo"
+    else
+        msg_normal "kernel.afdo profile not found. Disabling AutoFDO compile-time optimizations.\n"
+        scripts/config --disable CONFIG_AUTOFDO_CLANG
+    fi
+
+    scripts/config --enable CONFIG_SCHED_BORE
+    scripts/config --enable CONFIG_SCHED_CLASS_EXT
+    scripts/config --enable CONFIG_DEBUG_INFO_BTF
+
+    make LLVM=1 LLVM_IAS=1 olddefconfig
+}
+
+do_build() {
+    # ThinLTO utilizes multi-threaded compilation. Adjust -j to the system nproc count.
+    make LLVM=1 LLVM_IAS=1 -j$(nproc) bzImage modules
+}
+
+do_install() {
+    local kernver="${version}_${revision}"
+    msg_normal "Installing kernel modules into target destination directory...\n"
+    make LLVM=1 LLVM_IAS=1 INSTALL_MOD_PATH=${DESTDIR} modules_install
+
+    # Store the kernel config, map, and raw binary inside the install root
+    mkdir -p ${DESTDIR}/boot
+    cp arch/x86/boot/bzImage ${DESTDIR}/boot/vmlinuz-${pkgname}-${kernver}
+    cp System.map ${DESTDIR}/boot/System.map-${pkgname}-${kernver}
+    cp .config ${DESTDIR}/boot/config-${pkgname}-${kernver}
+}

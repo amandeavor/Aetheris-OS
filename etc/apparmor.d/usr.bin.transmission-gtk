@@ -1,0 +1,31 @@
+# Profile for transmission-gtk
+#include <tunables/global>
+
+/usr/bin/transmission-gtk {
+  #include <abstractions/base>
+  #include <abstractions/gnome>
+  #include <abstractions/nameservice>
+
+  # Allow network access
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
+  # Read system configurations
+  /etc/transmission-gtk/** r,
+
+  # Allow user configuration reading and writing
+  owner @{HOME}/.config/transmission/ rw,
+  owner @{HOME}/.config/transmission/** rwk,
+  owner @{HOME}/.cache/transmission/ rw,
+  owner @{HOME}/.cache/transmission/** rwk,
+
+  # Allow access to downloads directory
+  owner @{HOME}/Downloads/ rw,
+  owner @{HOME}/Downloads/** rwk,
+
+  # Deny SSH and GPG keys access
+  deny @{HOME}/.ssh/** rw,
+  deny @{HOME}/.gnupg/** rw,
+}

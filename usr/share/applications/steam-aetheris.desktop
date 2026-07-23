@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Steam (Aetheris Secure)
+Comment=Play games on Steam with secure ptrace caps
+Exec=/usr/bin/steam-aetheris %U
+Icon=steam
+Terminal=false
+Categories=Game;
+MimeType=x-scheme-handler/steam;

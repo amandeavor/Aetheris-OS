@@ -1,0 +1,20 @@
+# Template file for 'velocity-install'
+pkgname=velocity-install
+version=0.1.0
+revision=1
+build_style=cargo
+cargo_srcdir="velocityinstall/src-tauri"
+short_desc="Tauri-based graphical installer wizard for Aetheris OS"
+maintainer="Aetheris OS Installer Team <installer-maint@aetheris-os.org>"
+license="GPL-3.0-only"
+homepage="https://github.com/aetheris-os/velocityinstall"
+depends="parted cryptsetup systemd-boot"
+
+do_install() {
+    # Install compiled Tauri binary
+    vbin velocityinstall/src-tauri/target/x86_64-unknown-linux-gnu/release/velocityinstall velocity-install
+
+    # Install desktop shortcut launcher
+    vmkdir usr/share/applications
+    vcopy usr/share/applications/velocity-install.desktop usr/share/applications/
+}

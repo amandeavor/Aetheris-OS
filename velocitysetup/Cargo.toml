@@ -1,0 +1,15 @@
+[package]
+name = "velocitysetup"
+version = "0.1.0"
+description = "Aetheris OS OOBE Setup Wizard"
+authors = ["Aetheris OS UX Team <ux@aetheris-os.org>"]
+edition = "2021"
+
+[dependencies]
+gtk4 = { version = "0.8", package = "gtk" }
+libadwaita = { version = "0.6", package = "adw" }
+zeroize = { version = "1.7", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+zbus = "3.14"
+

@@ -1,0 +1,7 @@
+# File: /usr/share/themes/Prismatic-Obsidian/window-manager/themerc
+window.active.title.bg.color: #080A0F
+window.active.border.color: #6366F1
+window.inactive.border.color: #1a1e2a
+window.active.title.text.color: #F4F6F9
+border.width: 1
+padding.width: 4

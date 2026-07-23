@@ -1,0 +1,34 @@
+#!/bin/bash
+# File: /usr/bin/exec-guard-wrapper
+set -eo pipefail
+
+TARGET_BIN=$(realpath "$1")
+BIN_NAME=$(basename "$TARGET_BIN")
+APP_DB="/usr/share/exec-guard/app_db.json"
+
+# Check if a native package recommendation exists in the database
+MATCH=$(jq --arg bin "$BIN_NAME" '.apps[] | select(.executables[] == $bin)' "$APP_DB" || true)
+
+if [ -n "$MATCH" ]; then
+    NATIVE_PKG=$(echo "$MATCH" | jq -r '.alternative_package')
+    NATIVE_SRC=$(echo "$MATCH" | jq -r '.alternative_source')
+    ALERT_MSG=$(echo "$MATCH" | jq -r '.message')
+
+    # Prompt the user with options to install the native package
+    sfwbar-notify --title "Native App Available" \
+                  --body "$ALERT_MSG\nWould you like to install the optimized alternative?" \
+                  --action "install"
+
+    # If accepted, launch the installer in a terminal and exit
+    if [ "$?" -eq 0 ]; then
+        if [ "$NATIVE_SRC" = "xbps" ]; then
+            exec xterm -e "sudo xbps-install -S $NATIVE_PKG"
+        elif [ "$NATIVE_SRC" = "flatpak" ]; then
+            exec xterm -e "flatpak install flathub $NATIVE_PKG"
+        fi
+        exit 0
+    fi
+fi
+
+# Fall back to bubblewrap sandbox execution if no native match is verified
+exec /usr/bin/exec-guard-sandbox "$TARGET_BIN"

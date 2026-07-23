@@ -1,0 +1,18 @@
+<!-- File: ~/.config/labwc/rc.xml -->
+<labwc_config>
+  <theme>
+    <name>Prismatic-Obsidian</name>
+    <cornerRadius>8</cornerRadius>
+    <keepBorder>yes</keepBorder>
+    <font name="Nacelle Variable" size="10" />
+  </theme>
+  <windowRules>
+    <windowRule identifier="sfwbar" action="skipTaskbar"/>
+  </windowRules>
+  <outputs>
+    <output name="DP-1">
+      <vrr>yes</vrr>
+      <tearing>yes</tearing> <!-- Lower input latency during fullscreen gaming -->
+    </output>
+  </outputs>
+</labwc_config>

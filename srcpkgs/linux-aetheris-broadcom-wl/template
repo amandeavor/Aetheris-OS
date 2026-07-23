@@ -1,0 +1,17 @@
+# Template file for 'linux-aetheris-broadcom-wl'
+pkgname=linux-aetheris-broadcom-wl
+version=6.12.11
+revision=1
+build_style=meta
+short_desc="Pre-compiled Broadcom wl modules wrapper for Aetheris OS"
+maintainer="Aetheris OS Driver Team <drivers@aetheris-os.org>"
+license="proprietary"
+depends="linux-aetheris broadcom-wl-dkms"
+
+do_install() {
+    # Install dracut module configuration to trigger early modules loading
+    vmkdir etc/dracut.conf.d
+    cat << 'EOF' > ${DESTDIR}/etc/dracut.conf.d/10-broadcom.conf
+force_drivers+=" wl "
+EOF
+}

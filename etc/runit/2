@@ -1,0 +1,11 @@
+#!/bin/sh
+# File: /etc/runit/2
+# Optimized service startup manager for Aetheris OS
+
+export PATH=/usr/bin:/usr/sbin:/bin:/sbin
+
+# Setup early service environment paths
+mkdir -p /run/runit
+
+# Run the supervised services directory in parallel
+exec runsvdir -P /var/service

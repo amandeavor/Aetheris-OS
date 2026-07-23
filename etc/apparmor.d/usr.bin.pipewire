@@ -1,0 +1,26 @@
+# AppArmor Profile for PipeWire Audio Daemon
+#include <tunables/global>
+
+/usr/bin/pipewire {
+  #include <abstractions/base>
+
+  # Allow direct hardware access to audio nodes
+  /dev/snd/ rw,
+  /dev/snd/** rw,
+
+  # Deny all network access to prevent network exfiltration
+  deny network inet,
+  deny network inet6,
+  deny network raw,
+
+  # Allow system configurations and runtime directories access
+  /etc/pipewire/ r,
+  /etc/pipewire/** r,
+  /usr/share/pipewire/ r,
+  /usr/share/pipewire/** r,
+  owner @{HOME}/.config/pipewire/ rw,
+  owner @{HOME}/.config/pipewire/** rw,
+
+  # Runtime socket communications
+  owner /run/user/[0-9]*/pipewire-* rw,
+}

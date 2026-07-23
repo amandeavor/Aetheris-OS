@@ -1,0 +1,64 @@
+# Driver profiles for graphics cards
+# File: /usr/share/chwd/profiles/pci/graphic_drivers.toml
+
+[nvidia-open-dkms]
+desc = "Open source kernel-mode NVIDIA drivers"
+priority = 10
+class_ids = ["0300", "0302"]
+vendor_ids = ["10de"]
+device_ids = "*"
+device_name_pattern = "(AD)\\w+"
+packages = "nvidia-open-dkms nvidia-utils egl-wayland"
+services = "nvidia-persistenced"
+pre_install = """
+cat << 'EOF' > /etc/mkinitcpio.conf.d/10-chwd.conf
+MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+EOF
+"""
+
+[nvidia-open-dkms.prime]
+desc = "Open source kernel-mode NVIDIA drivers with PRIME Render Offload"
+priority = 15
+class_ids = ["0300", "0302"]
+vendor_ids = ["10de"]
+device_ids = "*"
+packages = "nvidia-open-dkms nvidia-utils egl-wayland switcheroo-control"
+services = "nvidia-persistenced switcheroo-control"
+pre_install = """
+cat << 'EOF' > /etc/mkinitcpio.conf.d/10-chwd.conf
+MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+EOF
+"""
+
+[mesa-amdgpu]
+desc = "Optimized Mesa drivers for AMD Radeon Graphics"
+priority = 8
+class_ids = ["0300"]
+vendor_ids = ["1002"]
+device_ids = "*"
+packages = "mesa-vaapi mesa-vdpau vulkan-amdgpu xf86-video-amdgpu"
+pre_install = """
+echo "options amdgpu-si-support=1" > /etc/modprobe.d/amdgpu.conf
+echo "options amdgpu-cik-support=1" >> /etc/modprobe.d/amdgpu.conf
+"""
+
+[mesa-amdgpu.prime]
+desc = "Optimized Mesa drivers for AMD Radeon Graphics with PRIME Render Offload"
+priority = 12
+class_ids = ["0300"]
+vendor_ids = ["1002"]
+device_ids = "*"
+packages = "mesa-vaapi mesa-vdpau vulkan-amdgpu xf86-video-amdgpu switcheroo-control"
+services = "switcheroo-control"
+pre_install = """
+echo "options amdgpu-si-support=1" > /etc/modprobe.d/amdgpu.conf
+echo "options amdgpu-cik-support=1" >> /etc/modprobe.d/amdgpu.conf
+"""
+
+[mesa-intel]
+desc = "Optimized Mesa drivers for Intel Graphics"
+priority = 8
+class_ids = ["0300"]
+vendor_ids = ["8086"]
+device_ids = "*"
+packages = "mesa-vaapi intel-video-accel vulkan-intel"

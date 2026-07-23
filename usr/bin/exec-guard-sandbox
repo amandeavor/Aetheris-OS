@@ -1,0 +1,50 @@
+#!/bin/bash
+# File: /usr/bin/exec-guard-sandbox
+set -eo pipefail
+
+TARGET_BIN=$(realpath "$1")
+BIN_DIR=$(dirname "$TARGET_BIN")
+EXTENSION="${TARGET_BIN##*.}"
+
+# Define persistent storage for the isolated application instance
+SANDBOX_HOME="$HOME/.local/share/aetheris_sandbox"
+mkdir -p "$SANDBOX_HOME"
+
+if [ "${EXTENSION,,}" = "msi" ]; then
+    TARGET_NAME="target_app.msi"
+    WINE_ARGS=(/usr/bin/wine msiexec /i "$HOME/target_app.msi")
+else
+    TARGET_NAME="target_app.exe"
+    WINE_ARGS=(/usr/bin/wine "$HOME/target_app.exe")
+fi
+
+# Isolate execution within a hardened Bubblewrap container
+exec bwrap \
+    --unshare-all \
+    --share-net \
+    --die-with-parent \
+    --new-session \
+    --hostname "aetheris-sandbox" \
+    --ro-bind /usr /usr \
+    --ro-bind /bin /bin \
+    --ro-bind /lib /lib \
+    --ro-bind /lib64 /lib64 \
+    --ro-bind /etc/resolv.conf /etc/resolv.conf \
+    --ro-bind /etc/fonts /etc/fonts \
+    --ro-bind /etc/alternatives /etc/alternatives \
+    --ro-bind /usr/share/wine /usr/share/wine \
+    --ro-bind /usr/share/icons /usr/share/icons \
+    --dev /dev \
+    --proc /proc \
+    --tmpfs /tmp \
+    --tmpfs /run \
+    --tmpfs "$HOME" \
+    --bind "$SANDBOX_HOME" "$HOME" \
+    --ro-bind "$TARGET_BIN" "$HOME/$TARGET_NAME" \
+    --ro-bind-try "$XDG_RUNTIME_DIR/wayland-0" "$XDG_RUNTIME_DIR/wayland-0" \
+    --setenv HOME "$HOME" \
+    --setenv PATH "/usr/bin:/bin" \
+    --setenv WAYLAND_DISPLAY "wayland-0" \
+    --setenv WINEDEBUG "-all" \
+    --chdir "$HOME" \
+    "${WINE_ARGS[@]}"

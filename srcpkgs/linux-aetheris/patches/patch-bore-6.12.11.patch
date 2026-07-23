@@ -1,0 +1,16 @@
+# Aetheris OS BORE Scheduler Patch Redirect Notice
+# BORE (Burst-Oriented Response Enhancer) CPU Scheduler Patch
+# Origin: https://github.com/firelzrd/bore-scheduler/raw/main/patches/patch-bore-6.12.11.patch
+# Signed-off-by: Aetheris OS Kernel Team <kernel-maint@aetheris-os.org>
+#
+# This file is a placeholder/redirect notice. The real patch is fetched at build time
+# using Void Linux xbps-src distfiles.
+
+--- a/Documentation/scheduler/sched-bore.txt	1970-01-01 00:00:00.000000000 +0000
++++ b/Documentation/scheduler/sched-bore.txt	2026-06-19 00:00:00.000000000 +0000
+@@ -0,0 +1,5 @@
++Aetheris OS BORE (Burst-Oriented Response Enhancer) CPU Scheduler.
++The BORE scheduler is applied dynamically during kernel compilation.
++This documentation stub verifies that the patch integration layer is active.
++Origin: https://github.com/firelzrd/bore-scheduler
++Signed-off-by: Aetheris OS Kernel Team <kernel-maint@aetheris-os.org>

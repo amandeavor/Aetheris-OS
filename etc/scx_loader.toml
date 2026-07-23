@@ -1,0 +1,10 @@
+# Configuration for scx_loader dynamic eBPF scheduler switching
+default_sched = "scx_bpfland"
+default_mode = "Auto"
+
+[scheds.scx_bpfland]
+auto_mode = ["-m", "performance"]
+gaming_mode = ["-m", "performance", "-w"]
+
+[scheds.scx_lavd]
+gaming_mode = ["--performance"]

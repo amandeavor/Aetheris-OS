@@ -1,0 +1,17 @@
+# Template file for 'linux-aetheris-nvidia-open'
+pkgname=linux-aetheris-nvidia-open
+version=6.12.11
+revision=1
+build_style=meta
+short_desc="Pre-compiled NVIDIA open kernel modules wrapper for Aetheris OS"
+maintainer="Aetheris OS Driver Team <drivers@aetheris-os.org>"
+license="proprietary"
+depends="linux-aetheris nvidia-open-dkms"
+
+do_install() {
+    # Install dracut module configuration to trigger early KMS module loading
+    vmkdir etc/dracut.conf.d
+    cat << 'EOF' > ${DESTDIR}/etc/dracut.conf.d/10-nvidia.conf
+force_drivers+=" nvidia nvidia_modeset nvidia_uvm nvidia_drm "
+EOF
+}

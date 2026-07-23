@@ -1,0 +1,28 @@
+# Template file for 'exec-guard'
+pkgname=exec-guard
+version=0.1.0
+revision=1
+build_style=meta
+short_desc="Windows executable sandboxing and redirection utility"
+maintainer="Aetheris OS Security Team <security@aetheris-os.org>"
+license="GPL-3.0-only"
+depends="bubblewrap jq"
+
+do_install() {
+    # Install binary wrappers and executables
+    vinstall usr/bin/exec-guard-wrapper 755 usr/bin
+    vinstall usr/bin/exec-guard-sandbox 755 usr/bin
+
+    # Install mapping database
+    vinstall usr/share/exec-guard/app_db.json 644 usr/share/exec-guard
+
+    # Install binfmt rules
+    vinstall etc/binfmt.d/win-exec.conf 644 etc/binfmt.d
+
+    # Install desktop shortcuts
+    vinstall usr/share/applications/exec-guard.desktop 644 usr/share/applications
+    vinstall usr/share/applications/exec-guard-msi.desktop 644 usr/share/applications
+
+    # Install MIME default associations
+    vinstall etc/xdg/mimeapps.list 644 etc/xdg
+}

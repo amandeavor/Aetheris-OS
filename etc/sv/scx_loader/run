@@ -1,0 +1,10 @@
+#!/bin/sh
+exec 2>&1
+
+# Wait for dbus system socket to prevent startup crash loops
+while [ ! -S /run/dbus/system_bus_socket ]; do
+    echo "scx_loader: Waiting for dbus system socket..."
+    sleep 0.5
+done
+
+exec /usr/bin/scx_loader --config /etc/scx_loader.toml

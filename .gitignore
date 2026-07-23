@@ -1,0 +1,22 @@
+# Build artifacts
+**/target/
+**/node_modules/
+**/dist/
+**/build/
+
+# OS/ISO images and binaries
+*.iso
+*.img
+*.bin
+*.qcow2
+
+# System / OS generated files
+.DS_Store
+Thumbs.db
+*.log
+velocitymind/velocitymind
+
+# Environment variables
+.env
+.env.local
+.env.*.local

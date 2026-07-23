@@ -1,0 +1,75 @@
+#!/bin/bash
+# File: /usr/bin/velocitymind-focus-hook
+# Monitors Wayland active windows and notifies the VelocityMind daemon.
+
+SOCKET_PATH="/tmp/velocitymind.sock"
+
+# Wait for the socket to be initialized by the daemon
+while [ ! -S "$SOCKET_PATH" ]; do
+    echo "Waiting for VelocityMind daemon socket at $SOCKET_PATH..."
+    sleep 1
+done
+
+send_focus_event() {
+    local app_name="$1"
+    if [ -n "$app_name" ]; then
+        if command -v socat >/dev/null 2>&1; then
+            echo "$app_name" | socat - "UNIX-CONNECT:$SOCKET_PATH" 2>/dev/null || true
+        elif command -v nc >/dev/null 2>&1; then
+            # -U for UNIX socket support in BSD netcat
+            echo "$app_name" | nc -U "$SOCKET_PATH" 2>/dev/null || true
+        fi
+    fi
+}
+
+# Event-driven window listener using wlrctl, swaymsg, or Hyprland socket
+if command -v wlrctl >/dev/null 2>&1; then
+    echo "Using wlrctl event listener..."
+    # wlrctl toplevel listen streams state transitions. Focus lines look like:
+    # toplevel: focus <title> app-id <app-id> ...
+    wlrctl toplevel listen | while read -r line; do
+        if [[ "$line" =~ focus ]]; then
+            # Extract the app-id
+            app_id=$(echo "$line" | grep -oE "app-id '[^']+'" | cut -d"'" -f2 || true)
+            if [ -n "$app_id" ]; then
+                send_focus_event "$app_id"
+            fi
+        fi
+    done
+elif command -v swaymsg >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+    echo "Using swaymsg event listener..."
+    swaymsg -t subscribe '["window"]' -m | jq --unbuffered -r '
+        select(.change == "focus") |
+        .container.app_id // .container.window_properties.class // .container.name
+    ' | while read -r app_id; do
+        if [ -n "$app_id" ] && [ "$app_id" != "null" ]; then
+            send_focus_event "$app_id"
+        fi
+    done
+elif [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ] && command -v socat >/dev/null 2>&1; then
+    echo "Using Hyprland socket event listener..."
+    socat - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do
+        if [[ "$line" =~ ^activewindow\>\> ]]; then
+            # Format: activewindow>>windowclass,windowtitle
+            app_id=$(echo "$line" | cut -d',' -f1 | cut -d'>' -f3 || true)
+            if [ -n "$app_id" ]; then
+                send_focus_event "$app_id"
+            fi
+        fi
+    done
+else
+    # Fallback to polling via process states
+    echo "No Wayland compositor event listener tool found. Falling back to active window focus polling..."
+    last_focus=""
+    while true; do
+        # Poll the topmost process that is active
+        # In Labwc, active window class can be matched via current focus Comm
+        current_focus=$(pgrep -o -x "firefox|xterm|gimp|bottles|transmission-gtk|velocitystore|velocityinstall|velocitysetup" | xargs ps -o comm= 2>/dev/null | head -n 1 || true)
+
+        if [ -n "$current_focus" ] && [ "$current_focus" != "$last_focus" ]; then
+            send_focus_event "$current_focus"
+            last_focus="$current_focus"
+        fi
+        sleep 0.5
+    done
+fi

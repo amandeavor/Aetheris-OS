@@ -1,0 +1,6 @@
+#!/bin/bash
+# File: /usr/bin/steam-aetheris
+# Capability wrapper to allow Steam/Proton debug access under yama ptrace_scope=2.
+
+exec setpriv --caps "+cap_sys_ptrace" --ambient-caps "+cap_sys_ptrace" \
+  --no-new-privs /usr/bin/steam "$@"

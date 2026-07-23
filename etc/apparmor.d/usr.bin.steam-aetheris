@@ -1,0 +1,32 @@
+# Profile for Steam Aetheris Wrapper
+#include <tunables/global>
+
+/usr/bin/steam-aetheris {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  # AppArmor 4.0 User Namespace Restriction Allowlist
+  userns,
+
+  # Allow peer-to-peer ptrace capability for Wine/Proton processes
+  ptrace read peer=@{profile_name},
+  ptrace trace peer=@{profile_name},
+
+  # Allow general execution
+  /usr/bin/steam r,
+  /usr/bin/steam-aetheris r,
+
+  # Deny raw socket creation for security confinement
+  deny network raw,
+
+  # Allow normal network connections for online gaming
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
+  # Allow reading system directories
+  /usr/share/steam/** r,
+  owner @{HOME}/.local/share/Steam/ rw,
+  owner @{HOME}/.local/share/Steam/** rwk,
+}

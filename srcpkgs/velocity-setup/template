@@ -1,0 +1,29 @@
+# Template file for 'velocity-setup'
+pkgname=velocity-setup
+version=0.1.0
+revision=1
+build_style=cargo
+cargo_srcdir="velocitysetup"
+short_desc="GTK4 / Libadwaita welcome wizard OOBE for Aetheris OS"
+maintainer="Aetheris OS UX Team <ux-maint@aetheris-os.org>"
+license="GPL-3.0-only"
+homepage="https://github.com/aetheris-os/velocitysetup"
+depends="gtk4 libadwaita zeroize dconf"
+
+do_install() {
+    # Install compiled binary
+    vbin velocitysetup/target/x86_64-unknown-linux-gnu/release/velocitysetup velocity-setup
+
+    # Register OOBE first-boot autostart target shortcut
+    vmkdir etc/xdg/autostart
+    cat << 'EOF' > ${DESTDIR}/etc/xdg/autostart/velocity-setup.desktop
+[Desktop Entry]
+Type=Application
+Name=Aetheris OOBE Wizard
+Comment=First boot setup configuration helper
+Exec=/usr/bin/velocity-setup
+Terminal=false
+NoDisplay=true
+OnlyShowIn=Wayland;X-Cachy;X-GNOME;
+EOF
+}

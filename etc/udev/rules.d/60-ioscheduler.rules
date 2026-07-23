@@ -1,0 +1,16 @@
+# Auto-detect and set optimal I/O scheduler per device class for Aetheris OS
+
+# NVMe drives (including NVMe-over-fabrics) - bypass OS scheduling, let device firmware handle queue scheduling to minimize latency
+ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
+
+# SATA SSDs - use mq-deadline for balanced throughput and latency
+ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
+
+# SATA HDDs - use BFQ for smooth interactive performance under heavy I/O
+ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
+
+# eMMC storage - use BFQ to prevent process starvation
+ACTION=="add|change", KERNEL=="mmcblk[0-9]*", ATTR{queue/scheduler}="bfq"
+
+# ZRAM block devices - bypass scheduling completely as ZRAM is memory-backed
+ACTION=="add|change", KERNEL=="zram[0-9]*", ATTR{queue/scheduler}="none"

@@ -1,0 +1,50 @@
+{
+  "color": {
+    "background": {
+      "dark-bg-000": { "value": "#080A0F" },
+      "dark-bg-100": { "value": "#0F172A" },
+      "dark-bg-200": { "value": "#1E293B" },
+      "dark-bg-300": { "value": "#334155" },
+      "dark-bg-400": { "value": "#475569" },
+      "light-bg-000": { "value": "#F8FAFC" },
+      "light-bg-100": { "value": "#F1F5F9" },
+      "light-bg-200": { "value": "#E2E8F0" },
+      "light-bg-300": { "value": "#CBD5E1" },
+      "light-bg-400": { "value": "#94A3B8" }
+    },
+    "accent": {
+      "violet-100": { "value": "#EEF2F6" },
+      "violet-200": { "value": "#D0DBE8" },
+      "violet-300": { "value": "#B5C6DB" },
+      "violet-400": { "value": "#97AFCD" },
+      "violet-500": { "value": "#819CBE" },
+      "violet-600": { "value": "#6366F1" },
+      "violet-700": { "value": "#4F46E5" },
+      "violet-800": { "value": "#3730A3" },
+      "violet-900": { "value": "#312E81" }
+    },
+    "semantic": {
+      "sys-green": { "value": "#37A3A3" },
+      "sys-amber": { "value": "#F5921B" },
+      "sys-red": { "value": "#F0561D" },
+      "sys-purple": { "value": "#5E40BE" }
+    },
+    "neutral": {
+      "grey-50": { "value": "#F9FAFB" },
+      "grey-100": { "value": "#F3F4F6" },
+      "grey-200": { "value": "#E5E7EB" },
+      "grey-300": { "value": "#D1D5DB" },
+      "grey-400": { "value": "#9CA3AF" },
+      "grey-500": { "value": "#6B7280" },
+      "grey-600": { "value": "#4B5563" },
+      "grey-700": { "value": "#374151" },
+      "grey-800": { "value": "#1F2937" },
+      "grey-900": { "value": "#111827" }
+    }
+  },
+  "font": {
+    "interface": { "value": "Nacelle Variable, sans-serif" },
+    "monospace": { "value": "Geist Mono, monospace" },
+    "display": { "value": "Bricolage Grotesque, sans-serif" }
+  }
+}
