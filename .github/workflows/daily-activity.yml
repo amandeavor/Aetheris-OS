@@ -1,0 +1,43 @@
+name: Daily Activity Generator
+
+on:
+  schedule:
+    # Triggers daily at 08:00 UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate daily activity commits
+        run: |
+          # Variable daily pattern sequence: 2, 1, 3, 1, 2, 3, 1
+          PATTERN=(2 1 3 1 2 3 1)
+          
+          # Get current day of year (strip leading zeros to prevent octal parsing)
+          DAY_NUM=$(date +%j | sed 's/^0*//')
+          INDEX=$(( DAY_NUM % 7 ))
+          COUNT=${PATTERN[$INDEX]}
+          
+          echo "Day of year: $DAY_NUM, Pattern Index: $INDEX, Commits today: $COUNT"
+          
+          for i in $(seq 1 $COUNT); do
+            git commit --allow-empty -m "Chore: scheduled system check ($i/$COUNT)"
+            sleep 2
+          done
+          
+          git push origin main
