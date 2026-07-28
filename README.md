@@ -1,96 +1,50 @@
 # Aetheris OS
 
-<p align="center">
-  <strong>A high-performance, ultra-lightweight Linux distribution engineered for low-latency desktop workflows, gaming, and uncompromising security.</strong>
-</p>
+An experimental Void Linux-based system project with custom desktop configuration, packaging, and supporting utilities.
 
----
+## Status
 
-## ⚡ Overview
+This repository is under active development. It contains source code, package templates, configuration, and technical design documents, but does not provide a published ISO release. Review the code and build script before attempting a local build.
 
-**Aetheris OS** is an independent, Void-based Linux distribution optimized from the ground up for minimal resource usage, instantaneous boot times, and modern Wayland desktop experiences. Built without heavy legacy system daemons, Aetheris OS combines custom Rust & C daemons with a refined Wayland stack to deliver sub-40MB idle RAM usage while remaining feature-complete.
+## What is in this repository
 
----
+- `chwd_port/`: a Rust utility for PCI-based hardware detection and driver-profile installation.
+- `velocitymind/`: a C daemon for preloading selected application binaries.
+- `velocityinstall/`: a Tauri and Svelte installer interface with a Rust backend.
+- `velocitystore/`: a Tauri and Svelte software-center interface with Rust integrations for XBPS and Flatpak.
+- `velocitysetup/`: a Rust and GTK-based first-boot setup utility.
+- `srcpkgs/`: custom Void XBPS package templates, including a kernel package.
+- `config/`, `etc/`, `themes/`, and `usr/`: desktop, system, theme, and helper-script configuration.
+- `docs/`: architecture notes, subsystem documentation, benchmarking notes, and design material.
 
-## Key Architecture & Core Technologies
+## Build environment
 
-### 🚀 Custom Linux Kernel & System Layer (`linux-aetheris`)
-* **BORE CPU Scheduler**: Task-burst-oriented scheduler tuned for low UI latency during heavy background compilation or rendering workloads.
-* **ntsync Fast Mutexes**: In-kernel fast synchronisation support replacing traditional Wine/Proton socket IPC for substantial gaming FPS increases.
-* **ZRAM & Memory Management**: Dynamic ZRAM compression alongside `nohang` OOM prevention and systemd-less `runit` init supervision.
-* **`VelocityMind` Preloader**: C-based predictive background daemon (`velocitymind`) that dynamically pre-caches high-frequency application binaries into RAM.
+The `build-iso.sh` script is intended for a Linux host. It checks for Git, mtools, QEMU, GRUB, `parted-devel`, SQLite development files, `pkg-config`, GCC, Make, and Cargo. During a full run it also clones the Void Linux `void-packages` and `void-mklive` repositories, compiles local components and package templates, and invokes `sudo` to create an ISO.
 
-### 🎨 Desktop Environment & Design System
-* **Compositor**: Labwc Wayland compositor with custom `tearing-control-v1` low-latency page flipping and VRR/FreeSync integration.
-* **Status Panel**: Custom `sfwbar` status bar with GTK4/Qt6 styling parity.
-* **Design Dictionary**: System-wide design token compiler (`style-dictionary`) generating matching palettes for GTK4, Qt6 (via qss), and Labwc window borders.
+Run the script only after reviewing it and preparing a suitable Linux build environment:
 
-### ⚙️ Driver Management (`chwd_port`)
-* **Automated Hardware Profiling**: Rust-based PCI scanning engine for automated setup of proprietary NVIDIA open modules, AMD GPU firmware, and Broadcom/Realtek wireless drivers without manual intervention.
-
-### 📦 Application Ecosystem & Tools
-* **VelocityInstall**: Tauri v2 + Svelte 5 + Rust installer supporting LUKS2/TPM2 bound encryption, Btrfs subvolume schemes (`@root`, `@home`), and Windows dual-boot safe resizing.
-* **VelocityStore**: Native app store powered by direct Rust FFI bindings to `libxbps`, native Flatpak permission controls, and one-click Wine/Proton prefix management via Bottles CLI.
-* **VelocitySetup**: GTK4 + Libadwaita zero-overhead first-boot wizard.
-
-### 🛡️ Security & Exec Guard (`VelocityShield`)
-* **AppArmor Hardening**: Modern path-centric profiles restricting untrusted application access to `~/.ssh`, hardware sockets, and system paths.
-* **Exec Guard**: Userland application sandboxing daemon enforcing runtime policies on external executables and installers.
-* **Signed UKI & TPM2**: Unified Kernel Image binary layout with custom MOK signing and TPM2 PCR binding.
-
----
-
-## 📂 Repository Structure
-
-```
-.
-├── chwd_port/            # Rust hardware detection & driver installer engine
-├── config/               # Wayland (Labwc), sfwbar, GTK4, Qt6, mako configs
-├── dev-plan/             # Comprehensive technical design blueprints & audits
-├── docs/                 # Architectural specifications and subsystem guides
-├── etc/                  # Kernel cmdline, runit daemons, sysctl, AppArmor rules
-├── scripts/              # Repository key setup and utility scripts
-├── srcpkgs/              # Custom Void XBPS package build templates
-├── style-dictionary/     # Cross-toolkit theme token generator
-├── themes/               # Window manager and desktop themes
-├── usr/                  # Custom binaries, UKI signers, Exec Guard wrappers
-├── velocityinstall/      # Tauri v2 + Svelte 5 distribution installer UI
-├── velocitymind/         # C-based predictive memory preloader daemon
-├── velocitysetup/        # GTK4 first-boot configuration wizard
-├── velocitystore/        # Native XBPS/Flatpak App Store frontend
-└── build-iso.sh          # ISO image generation script
+```bash
+./build-iso.sh
 ```
 
----
+## Working on individual components
 
-## 🛠️ Building & Installation
+Some components can be built independently from their own directories. For example:
 
-### Requirements
-* Void Linux build environment (or chroot container with `xbps-src`)
-* `mksquashfs`, `xorriso`, `grub-mkrescue` or `systemd-boot` tools for ISO generation
-* Rust toolchain (`cargo`, `rustc`) & Node.js (for Tauri apps and style dictionary compilation)
+```bash
+cd chwd_port
+cargo build --release
 
-### Build Steps
+cd ../velocitymind
+make
+```
 
-1. **Compile Theme Tokens**:
-   ```bash
-   cd style-dictionary
-   node build.js
-   ```
+The Tauri-based components have their own Rust manifests under `velocityinstall/src-tauri/` and `velocitystore/src-tauri/`.
 
-2. **Build Native Utilities**:
-   ```bash
-   cd velocitymind && make
-   cd ../chwd_port && cargo build --release
-   ```
+## Documentation
 
-3. **Generate Live ISO**:
-   ```bash
-   ./build-iso.sh
-   ```
+Start with [the architecture overview](docs/01-architecture-overview.md). The `docs/` directory separates system, desktop, driver-management, installer, app-store, security, and benchmarking material.
 
----
+## License
 
-## 📄 License
-
-This distribution repository is open-source under the MIT License unless explicitly specified in individual component directories.
+No repository-level license file is currently included. Contact the maintainer before reusing code from this repository.
