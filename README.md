@@ -8,10 +8,22 @@
 [![GitHub stars](https://img.shields.io/github/stars/amandeavor/Aetheris-OS?style=flat&label=stars)](https://github.com/amandeavor/Aetheris-OS/stargazers)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-2f81f7)](CONTRIBUTING.md)
 
+[Roadmap](ROADMAP.md) · [Good first issues](https://github.com/amandeavor/Aetheris-OS/labels/good%20first%20issue) · [Contributing](CONTRIBUTING.md) · [Architecture](docs/01-architecture-overview.md) · [Discussions](https://github.com/amandeavor/Aetheris-OS/discussions)
+
 Aetheris OS explores what a responsive, hardware-aware Linux desktop can look like when the installer, driver setup, software center, first-boot experience, and system defaults are designed together.
 
 > [!IMPORTANT]
 > Aetheris is in the prototype stage. The repository contains working components, system configuration, package templates, and design documentation, but there is no public ISO release yet. It is not ready to replace a daily-use operating system.
+
+## What is here today
+
+- buildable Rust hardware-detection logic and declarative PCI/USB driver profiles;
+- early installer, software-center, and first-boot application code;
+- a working C and SQLite application preloader prototype;
+- runit services, security policies, desktop configuration, and XBPS templates;
+- architecture, security, packaging, and release-planning documentation.
+
+The repository is currently for contributors and reviewers. End-user installation begins with the first signed developer preview.
 
 ## Why Aetheris
 
@@ -38,17 +50,46 @@ Most desktop distributions assemble mature upstream components. Aetheris keeps t
 
 See the [component status](docs/component-status.md) for known limitations and validation commands.
 
-## Try a component
+## Architecture at a glance
 
-The safest starting point is the hardware-profile utility. `cargo check` does not modify the host:
+```mermaid
+flowchart LR
+    hardware[PCI and USB hardware] --> chwd[chwd_port]
+    chwd --> packages[XBPS packages and runit services]
+    installer[VelocityInstall] --> system[Void Linux system]
+    setup[VelocitySetup] --> system
+    store[VelocityStore] --> xbps[XBPS and Flatpak]
+    focus[Desktop focus events] --> mind[VelocityMind]
+    mind --> cache[Linux page cache]
+    config[System overlay] --> system
+```
+
+Each component is intentionally separable so contributors can validate one part without building or installing the full operating system.
+
+## Contributor quick start
+
+The safest first check is the hardware-profile utility. It does not modify the host.
+
+1. Clone the repository.
 
 ```bash
 git clone https://github.com/amandeavor/Aetheris-OS.git
 cd Aetheris-OS
+```
+
+2. Check the Rust component.
+
+```bash
 cargo check --manifest-path chwd_port/Cargo.toml
 ```
 
-On a Linux development host with SQLite headers installed, the preloader daemon can be compiled independently:
+3. Pick a scoped task and introduce yourself on the issue.
+
+- [Document the hardware profile format](https://github.com/amandeavor/Aetheris-OS/issues/21)
+- [Add a safe VelocityMind development guide](https://github.com/amandeavor/Aetheris-OS/issues/22)
+- [Browse all good first issues](https://github.com/amandeavor/Aetheris-OS/labels/good%20first%20issue)
+
+On a Linux development host with SQLite headers installed, you can also compile the preloader daemon independently:
 
 ```bash
 make -C velocitymind
