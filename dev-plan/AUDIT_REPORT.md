@@ -1,72 +1,46 @@
 # Aetheris OS Codebase Audit & Gap Analysis
 
-**Date:** June 19, 2026  
-**Status:** In Progress (Ultracode Mode)  
-**Goal:** Identify missing components, implementation gaps, and compile issues across all 7 Sub-Plans.
+**Original date:** June 19, 2026
+**Last reconciled:** 2026-09-01
+**Status:** Reconciled with current tree (closes #14)
+**Goal:** Track source-presence and known gaps across all 7 Sub-Plans.
+
+> **How to read this file.** This document records whether a sub-plan's spec'd files exist in the repository, plus any known gaps. **Source presence does not imply built, tested, or release-ready.** For runtime/build/test evidence, see [`docs/component-status.md`](../docs/component-status.md), which records the four-tier status (`exists / builds / tested / release-ready`) per component with safe validation paths.
 
 ---
 
 ## 📊 Summary of Implementation Status
 
-| Sub-Plan | Focus | Status | Present Files / Components | Missing Components / Gaps |
+| Sub-Plan | Focus | Status | Present Files / Components | Known Gaps |
 |---|---|---|---|---|
-| **01** | Kernel & Core | **Mostly Complete** | `srcpkgs/linux-aetheris/template`<br>`etc/sv/zram-init/run` & `finish`<br>`etc/sysctl.d/99-aetheris-memory.conf`<br>`etc/nohang/nohang-desktop.conf` | Checkboxes in manifest are unchecked. |
-| **02** | Desktop Shell | **Partially Complete** | `config/labwc/rc.xml` (basic)<br>`themes/Prismatic-Obsidian/window-manager/themerc`<br>`config/sfwbar/sfwbar.css` | 1. `<outputs>` section with VRR/tearing in `rc.xml` is missing.<br>2. GPU acceleration startup wrapper and `rc.xml` fallback logic are missing.<br>3. `sfwbar.config` layout configuration is missing.<br>4. Spring-physics animation timing configurations are missing. |
-| **03** | Windows Comp. | **Partially Complete** | `etc/binfmt.d/win-exec.conf`<br>`usr/share/exec-guard/app_db.json`<br>`usr/bin/exec-guard-wrapper`<br>`usr/bin/exec-guard-sandbox` | 1. `exec-guard.desktop` and `exec-guard-msi.desktop` files are missing.<br>2. MIME registry config (`~/.local/share/applications/mimeapps.list`) is missing. |
-| **04** | Driver Mgmt. | **Incomplete / Stub** | `chwd_port` Rust project shell (pci_scan, install_engine) | 1. `main.rs` doesn't match profiles to PCI devices or trigger installations.<br>2. Profile definition files (e.g. `graphic_drivers.toml`) are missing.<br>3. TOML parser (`toml` crate) is missing from `Cargo.toml`. |
-| **05** | Preloading | **Incomplete / Stub** | `velocitymind` daemon shell (SQLite DB & prefetch function) | 1. The window focus socket/Wayland monitoring hook is a mock sleep loop.<br>2. Missing system startup service scripts for velocitymind. |
-| **06** | Tauri Apps | **Missing** | None | 1. `VelocityInstall` Tauri v2 + Svelte partition manager is entirely missing.<br>2. `VelocityStore` Tauri v2 + Svelte app store with libxbps FFI is entirely missing. |
-| **07** | Security & OOBE| **Missing** | None | 1. AppArmor profiles are missing.<br>2. `/etc/nftables.conf` firewall is missing.<br>3. Unified Kernel Image (UKI) signing script is missing.<br>4. `VelocitySetup` OOBE wizard (GTK4 + Libadwaita) is entirely missing. |
+| **01** | Kernel & Core | **Source present** | `srcpkgs/linux-aetheris/template`<br>`etc/sv/zram-init/run` & `finish`<br>`etc/sysctl.d/99-aetheris-memory.conf`<br>`etc/nohang/nohang-desktop.conf` | None surfaced by this audit. Build validation: see `docs/component-status.md` row "system overlay". |
+| **02** | Desktop Shell | **Source present**, with one **Gap** | `config/labwc/rc.xml` (incl. `<outputs>`/VRR)<br>`config/labwc/rc-fallback.xml`<br>`usr/bin/labwc-wrapper`<br>`config/sfwbar/sfwbar.config`<br>`themes/Prismatic-Obsidian/window-manager/themerc`<br>`config/sfwbar/sfwbar.css` | **Gap**: spring-physics animation timing configurations not found across `.css/.xml/.theme/.lua/.json/.scss`. Implementation issue to be opened after this audit merges. |
+| **03** | Windows Comp. | **Source present** | `etc/binfmt.d/win-exec.conf`<br>`usr/share/exec-guard/app_db.json`<br>`usr/bin/exec-guard-wrapper`<br>`usr/bin/exec-guard-sandbox`<br>`usr/share/applications/exec-guard.desktop`<br>`usr/share/applications/exec-guard-msi.desktop`<br>`etc/xdg/mimeapps.list` | — |
+| **04** | Driver Mgmt. | **Source present** | `chwd_port/` Rust project (sysfs PCI + USB scan, TOML profiles, chassis detection)<br>`chwd_port/profiles/graphic_drivers.toml`<br>`chwd_port/profiles/wifi_drivers.toml`<br>`chwd_port/src/main.rs` (chassis detect, profile dispatch)<br>`chwd_port/Cargo.toml` (`toml`, `serde` deps) | Runtime match-and-apply validation: see `docs/component-status.md` row `chwd_port`. Matching needs fixture coverage; profile application changes the host. |
+| **05** | Preloading | **Source present** | `velocitymind/daemon.c` (SQLite, fanotify, `/tmp/velocitymind.sock`)<br>`etc/sv/velocitymind/run` (runit service) | Benchmark and long-running evidence: see `docs/component-status.md` row `velocitymind`. No concrete gap from this audit. |
+| **06** | Tauri Apps | **Source present** | `velocityinstall/` (Tauri v2 + Svelte partition manager, `parted-rs`)<br>`velocitystore/` (Tauri v2 + Svelte app store, libxbps FFI) | Frontend build manifests + destructive-path isolation: see `docs/component-status.md` rows `velocityinstall` / `velocitystore`. No concrete gap from this audit. |
+| **07** | Security & OOBE | **Source present** | `etc/apparmor.d/*` (6 profiles: firefox, flatpak, networkmanager, pipewire, steam-aetheris, transmission-gtk)<br>`etc/nftables.conf`<br>`usr/bin/aetheris-uki-sign`<br>`velocitysetup/src/main.rs` (GTK4 + Libadwaita OOBE) | End-to-end first-boot flow: see `docs/component-status.md` row `velocitysetup`. No concrete gap from this audit. |
 
 ---
 
-## 🛠️ Detailed Action Items & Resolution Plan
+## 🛠️ Tracked Gaps & Resolution Plan
 
-### Sub-Plan 02: Desktop Environment Gaps
-1. **Update `config/labwc/rc.xml`**: Include the `<outputs>` section for VRR/tearing.
-2. **Create GPU acceleration wrapper script (`usr/bin/labwc-wrapper`)**:
-   - Query `/dev/dri/card0`.
-   - Swap `rc.xml` with a fallback configuration (`config/labwc/rc-fallback.xml` that disables corner radius and shadows) if no GPU is detected.
-3. **Create `config/sfwbar/sfwbar.config`**:
-   - Define status bar modules (clock, active tasks, system trays).
-   - Integrate clock and taskbar modules.
+### Sub-Plan 02: Desktop Environment — Spring-Physics Animation Timing
+The original Jun 2026 audit called for spring-physics animation timing configurations. A repo-wide search (`grep -rEln 'spring|stiffness|damping'` across `.css/.xml/.theme/.lua/.json/.scss`) returned no matches. An implementation issue will be opened once this audit merges.
 
-### Sub-Plan 03: Windows Compatibility Gaps
-1. **Create desktop files**:
-   - `/usr/share/applications/exec-guard.desktop` (executes `/usr/bin/exec-guard-wrapper`)
-   - `/usr/share/applications/exec-guard-msi.desktop`
-2. **Create mimeapps.list configuration**:
-   - Put MIME registrations inside `/etc/xdg/mimeapps.list` or user profiles.
+### Items previously listed as "Missing / Incomplete" that now exist
+The following items were marked missing in the original Jun 2026 audit and have since been added to the repository. They are now reflected under **Source present** above.
 
-### Sub-Plan 04: Intelligent Driver Autoconfiguration Engine
-1. **Enhance `Cargo.toml`**: Add dependencies for TOML parsing (`serde`, `toml`, `regex`).
-2. **Implement Profile Schema & Parser**:
-   - Write a module to parse driver profiles in `/usr/share/chwd/profiles/pci/*.toml`.
-   - Implement regex matching for vendor, device, and class.
-3. **Connect Main to Resolution Pipeline**:
-   - Scan PCI bus.
-   - For each device, find the highest priority matching profile.
-   - Run `apply_profile` with packages and services.
-4. **Create default profiles**:
-   - NVIDIA open driver profile (`graphic_drivers.toml`).
-   - WiFi driver profiles.
+- **Sub-Plan 02**: `<outputs>`/VRR block in `config/labwc/rc.xml`; `usr/bin/labwc-wrapper`; `config/labwc/rc-fallback.xml`; `config/sfwbar/sfwbar.config`.
+- **Sub-Plan 03**: `usr/share/applications/exec-guard.desktop`; `usr/share/applications/exec-guard-msi.desktop`; `etc/xdg/mimeapps.list`.
+- **Sub-Plan 04**: `chwd_port/profiles/graphic_drivers.toml`; `chwd_port/profiles/wifi_drivers.toml`; `toml` and `serde` deps in `Cargo.toml`; profile selection pipeline in `main.rs`.
+- **Sub-Plan 05**: `etc/sv/velocitymind/run`; Unix-socket and fanotify wiring in `velocitymind/daemon.c`.
+- **Sub-Plan 06**: `velocityinstall/` and `velocitystore/` projects.
+- **Sub-Plan 07**: six AppArmor profiles in `etc/apparmor.d/`; `etc/nftables.conf`; `usr/bin/aetheris-uki-sign`; `velocitysetup/src/main.rs`.
 
-### Sub-Plan 05: Predictive App Preloading (VelocityMind)
-1. **Implement Wayland/Labwc focus hook**:
-   - Use labwc IPC or read active window titles from standard output of `sfwbar` or `swaymsg`/similar.
-   - Or establish a Unix socket listener in `velocitymind` so that Wayland shell scripts (running as window listeners) can send transition events.
-2. **Create service script**: Write `etc/sv/velocitymind/run` runit service script.
+---
 
-### Sub-Plan 06: Tauri & Svelte Applications
-1. **Tauri v2 Project Structure**:
-   - Initialize Svelte frontend and Tauri v2 backend for `VelocityInstall` and `VelocityStore`.
-2. **Libxbps FFI binding in Rust**:
-   - Bind libxbps C API to Rust commands.
-3. **Flatpak Overrides editor**:
-   - Implement INI parser in Rust for Flatpak overrides.
+## See also
 
-### Sub-Plan 07: Security Hardening & OOBE
-1. **Create nftables firewall**: Write `/etc/nftables.conf`.
-2. **AppArmor Profiles**: Write profiles for Web browsers/PDF viewers.
-3. **UKI Signing script**: Write `/usr/bin/aetheris-uki-sign`.
-4. **VelocitySetup OOBE wizard**: Initial GTK4 + Libadwaita code.
+- [`dev-plan/DEVELOPMENT_MANIFEST.md`](./DEVELOPMENT_MANIFEST.md) — sub-plan delivery tracking, using the same source-presence semantics.
+- [`docs/component-status.md`](../docs/component-status.md) — runtime/build/test/release validation status with safe validation paths.
