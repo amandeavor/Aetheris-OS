@@ -4,168 +4,175 @@
 
 # Aetheris OS
 
-**A responsive, hardware-aware desktop operating system built on Void Linux and Wayland.**
+**A focused, experimental desktop system built on Void Linux.**
 
 [![Base OS: Void Linux](https://img.shields.io/badge/base-Void%20Linux-478061?logo=linux&logoColor=white)](https://voidlinux.org/)
 [![Init: runit](https://img.shields.io/badge/init-runit-black)](http://smarden.org/runit/)
 [![Language: Rust](https://img.shields.io/badge/language-Rust-DEA584?logo=rust&logoColor=black)](https://www.rust-lang.org/)
 [![Language: C](https://img.shields.io/badge/language-C-A8B9CC?logo=c&logoColor=black)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Display: Wayland](https://img.shields.io/badge/display-Wayland%20%2F%20Labwc-FFA500?logo=wayland&logoColor=white)](https://wayland.freedesktop.org/)
-[![Quality Checks CI](https://img.shields.io/github/actions/workflow/status/amandeavor/Aetheris-OS/quality.yml?branch=main&label=CI)](https://github.com/amandeavor/Aetheris-OS/actions/workflows/quality.yml)
-[![GitHub Stars](https://img.shields.io/github/stars/amandeavor/Aetheris-OS?style=flat&label=stars)](https://github.com/amandeavor/Aetheris-OS/stargazers)
+[![Quality checks](https://github.com/amandeavor/Aetheris-OS/actions/workflows/quality.yml/badge.svg)](https://github.com/amandeavor/Aetheris-OS/actions/workflows/quality.yml)
+[![GitHub stars](https://img.shields.io/github/stars/amandeavor/Aetheris-OS?style=flat&label=stars)](https://github.com/amandeavor/Aetheris-OS/stargazers)
+[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-2f81f7)](CONTRIBUTING.md)
 
 <p align="center">
-  <a href="#overview">Overview</a> •
-  <a href="#subsystems--components">Subsystems</a> •
-  <a href="#modular-pipeline">Architecture</a> •
-  <a href="#contributor-quickstart">Quickstart</a> •
-  <a href="#verification-matrix">Verification</a> •
-  <a href="#roadmap--governance">Governance</a>
+  <a href="ROADMAP.md">Roadmap</a> ·
+  <a href="https://github.com/amandeavor/Aetheris-OS/labels/good%20first%20issue">Good first issues</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a> ·
+  <a href="docs/01-architecture-overview.md">Architecture</a> ·
+  <a href="https://github.com/amandeavor/Aetheris-OS/discussions">Discussions</a>
 </p>
 
 </div>
 
 ---
 
+Aetheris OS explores what a responsive, hardware-aware Linux desktop can look like when the installer, driver setup, software center, first-boot experience, and system defaults are designed together.
+
 > [!IMPORTANT]
-> **Stage: Prototype & Systems Engineering.**
-> Aetheris OS contains buildable components, declarative hardware profiles, preloading daemons, and system packaging, but **no public ISO release exists yet**. The codebase is currently structured for contributors, reviewers, and systems researchers.
+> Aetheris is in the prototype stage. The repository contains working components, system configuration, package templates, and design documentation, but there is no public ISO release yet. It is not ready to replace a daily-use operating system.
 
 ---
 
-## Overview
+## What is here today
 
-Most modern desktop distributions assemble upstream components with minimal integration between the driver layer, memory subsystem, and desktop shell. 
+- buildable Rust hardware-detection logic and declarative PCI/USB driver profiles;
+- early installer, software-center, and first-boot application code;
+- a working C and SQLite application preloader prototype;
+- runit services, security policies, desktop configuration, and XBPS templates;
+- architecture, security, packaging, and release-planning documentation.
 
-**Aetheris OS** pairs the speed and simplicity of **Void Linux** (`runit` + `xbps`) with bespoke, modern integration layers:
-
-- **Hardware-Aware Driver Profiling**: Declarative PCI/USB driver matching in Rust (`chwd_port`).
-- **Predictive Page Cache Warming**: C and SQLite transition-learning daemon (`velocitymind`).
-- **Unified Graphical App Store**: Native desktop management across XBPS and Flatpak (`velocitystore`).
-- **Wayland Desktop Experience**: Curated `labwc` compositor, `sfwbar` panel, and spring-physics animations.
-- **Explicit Isolation & Security**: Declarative AppArmor sandboxing, nftables firewalling, and UKI signing.
+The repository is currently for contributors and reviewers. End-user installation begins with the first signed developer preview.
 
 ---
 
-## Subsystems & Components
+## Why Aetheris
 
-```
-                    ┌──────────────────────────────────────────────┐
-                    │           Aetheris OS Architecture           │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-         ┌──────────────────┬──────────────┼──────────────────┬──────────────────┐
-         ▼                  ▼              ▼                  ▼                  ▼
-  ┌──────────────┐   ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-  │  chwd_port   │   │ velocitymind │ │velocitystore │ │velocitysetup │ │System Overlay│
-  │ Hardware &   │   │  Predictive  │ │ XBPS/Flatpak │ │  First-boot  │ │ AppArmor, UDev│
-  │ PCI drivers  │   │  Preloader   │ │  App Store   │ │  Onboarding  │ │ & Wayland/WM │
-  │    (Rust)    │   │ (C + SQLite) │ │(Tauri+Svelte)│ │ (GTK4/Adw)   │ │ (Void+runit) │
-  └──────────────┘   └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘
-```
+Most desktop distributions assemble mature upstream components. Aetheris keeps that foundation, using Void Linux and runit, while experimenting in the integration layers where desktop usability is often won or lost:
 
-| Component | Subsystem & Purpose | Implementation Stack | Maturity Status |
+- automatic PCI and USB driver-profile selection;
+- a graphical installer and first-boot setup flow;
+- one interface for XBPS and Flatpak software;
+- conservative memory pressure handling and application preloading;
+- Wayland desktop defaults for Labwc and sfwbar;
+- explicit security profiles and Windows-application isolation.
+
+---
+
+## Components
+
+| Component | Purpose | Stack | Maturity |
 | :--- | :--- | :--- | :--- |
-| **`chwd_port`** | Hardware detection, vendor PCI/USB matching, and automated driver orchestration. | Rust 2021 | **Buildable Prototype** |
-| **`velocitymind`** | Predictive desktop preloader tracking window focus events to warm binaries into page cache. | C99, SQLite 3, POSIX | **Buildable Prototype** |
-| **`velocityinstall`**| System installer, automated btrfs subvolume layout, and user provisioning. | Rust, Tauri v2, Svelte | **Early Prototype** |
-| **`velocitystore`**  | Unified GUI software catalog managing XBPS system packages and Flatpaks. | Rust, Tauri v2, Svelte | **Early Prototype** |
-| **`velocitysetup`**  | First-boot onboarding wizard for timezone, network, and accessibility setup. | Rust, GTK4, Libadwaita | **Early Prototype** |
-| **`srcpkgs`**        | Custom Void Linux XBPS package templates and kernel configuration patches. | XBPS, Shell | **Experimental** |
-| **`config` / `etc`** | Wayland compositor configs (`labwc`), panel (`sfwbar`), and AppArmor profiles. | Shell, XML, Conf | **Experimental** |
+| **`chwd_port`** | Match detected hardware against driver profiles and apply packages or services | Rust | Prototype |
+| **`velocitymind`** | Learn application transitions and warm likely binaries into the page cache | C, SQLite | Prototype |
+| **`velocityinstall`** | Graphical installation and partitioning flow | Rust, Tauri, Svelte | Early prototype |
+| **`velocitystore`** | XBPS and Flatpak software management | Rust, Tauri, Svelte | Early prototype |
+| **`velocitysetup`** | First-boot account, network, privacy, and accessibility setup | Rust, GTK4, Libadwaita | Early prototype |
+| **`srcpkgs`** | Void package templates for Aetheris components and kernel experiments | XBPS | Experimental |
+| **`config`, `etc`, `usr`** | Desktop, service, security, and system overlay | Shell, system config | Experimental |
+
+See the [component status](docs/component-status.md) for known limitations and validation commands.
 
 ---
 
-## Modular Pipeline
+## Architecture at a glance
 
-Each component is **completely decoupled** so you can develop, test, and contribute to individual subsystems without needing a full Void Linux virtual machine or building an entire ISO image:
-
+```mermaid
+flowchart LR
+    hardware[PCI and USB hardware] --> chwd[chwd_port]
+    chwd --> packages[XBPS packages and runit services]
+    installer[VelocityInstall] --> system[Void Linux system]
+    setup[VelocitySetup] --> system
+    store[VelocityStore] --> xbps[XBPS and Flatpak]
+    focus[Desktop focus events] --> mind[VelocityMind]
+    mind --> cache[Linux page cache]
+    config[System overlay] --> system
 ```
-[ 1. Hardware Detection & Drivers ]
-  PCI & USB Hardware ──► sysfs/udev ──► chwd_port (Rust) ──► Kernel Modules & Profiles
 
-[ 2. Predictive Runtime Acceleration ]
-  Window Focus Events ──► Desktop Session ──► velocitymind (C) ──► Page Cache (posix_fadvise)
-
-[ 3. Desktop Shell & Application Management ]
-  Wayland Session ──► Labwc Compositor ──► Sfwbar Panel ──► VelocityStore (XBPS + Flatpak)
-```
+Each component is intentionally separable so contributors can validate one part without building or installing the full operating system.
 
 ---
 
-## Contributor Quickstart
+## Contributor quick start
 
-### 1. Clone the repository
+The safest first check is the hardware-profile utility. It does not modify the host.
+
+1. Clone the repository.
 
 ```bash
 git clone https://github.com/amandeavor/Aetheris-OS.git
 cd Aetheris-OS
 ```
 
-### 2. Verify individual components locally
+2. Check the Rust component.
 
-#### A. Hardware Utility (`chwd_port` in Rust)
 ```bash
-# Check formatting and compilation
 cargo fmt --manifest-path chwd_port/Cargo.toml -- --check
 cargo check --locked --manifest-path chwd_port/Cargo.toml
 ```
 
-#### B. Preloader Daemon (`velocitymind` in C)
+3. Pick a scoped task and introduce yourself on the issue.
+
+- [Implement spring-physics animation timing configuration](https://github.com/amandeavor/Aetheris-OS/issues/25)
+- [Document the hardware profile format](https://github.com/amandeavor/Aetheris-OS/issues/21)
+- [Add a safe VelocityMind development guide](https://github.com/amandeavor/Aetheris-OS/issues/22)
+- [Browse all good first issues](https://github.com/amandeavor/Aetheris-OS/labels/good%20first%20issue)
+
+On a Linux development host with SQLite headers installed, you can also compile the preloader daemon independently:
+
 ```bash
-# Compile preloader with strict compiler warnings
 make -C velocitymind CFLAGS="-Os -Wall -Wextra -Werror"
 ```
 
-#### C. Shell Scripts & System Services
-```bash
-# Run ShellCheck on all setup and runit scripts
-shellcheck --severity=error config/sfwbar/*.sh usr/bin/*
-```
+The full `build-iso.sh` path is intended for an isolated Void Linux build environment. It downloads upstream sources, compiles packages, uses `sudo`, and creates a disposable build workspace. Read the script before running it.
 
 ---
 
-## Verification Matrix
+## Contribute
 
-To ensure stability across all subsystems, each component is audited against standard verification tiers:
+You do not need operating-system experience to start. Documentation, test fixtures, hardware profiles, accessibility review, Rust error handling, and build reproducibility are all useful contributions.
 
-| Subsystem | Source Location | Build Command | Verification Scope |
-| :--- | :--- | :--- | :--- |
-| **Hardware Tooling** | `chwd_port/` | `cargo check` | PCI parsing & profile syntax |
-| **Preload Daemon** | `velocitymind/` | `make -C velocitymind` | SQLite transition logging & memory safety |
-| **Desktop Configs** | `config/labwc/` | `labwc --validate` | Wayland keybindings & window rules |
-| **Panel Layouts** | `config/sfwbar/` | `sfwbar -c ...` | CSS styling & widget hierarchy |
-| **Security Rules** | `etc/apparmor.d/` | `apparmor_parser -d` | Policy parsing & confinement rules |
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
+2. Pick an issue labeled [`good first issue`](https://github.com/amandeavor/Aetheris-OS/labels/good%20first%20issue) or [`help wanted`](https://github.com/amandeavor/Aetheris-OS/labels/help%20wanted).
+3. Comment on the issue before starting so work is not duplicated.
+4. Open a focused pull request with the validation you performed.
 
-*See [docs/component-status.md](docs/component-status.md) for full subsystem audit logs.*
+Contributors who want to take long-term ownership of a component can follow the path in [GOVERNANCE.md](GOVERNANCE.md). Maintainer nominations are based on sustained, reviewed work, not follower counts or commit volume.
 
 ---
 
-## Roadmap & Governance
+## Direction
 
-We prioritize focused, verified engineering over speculative feature lists:
+The immediate goal is a reproducible developer preview, not a long feature list. Current priorities are:
 
-1. **Phase 1**: Full unit and fixture test coverage for `chwd_port` and `velocitymind`.
-2. **Phase 2**: Reproducible containerized Void Linux ISO build toolchain.
-3. **Phase 3**: First signed, bootable developer preview ISO for community testing.
+- make each component independently buildable and testable;
+- replace placeholder or unsafe system operations with validated implementations;
+- document a reproducible Void Linux build environment;
+- test hardware matching with fixtures before it touches a live system;
+- publish the first signed developer-preview artifact.
 
-- [Contributing Guidelines](CONTRIBUTING.md)
-- [Architecture Specifications](docs/01-architecture-overview.md)
-- [Governance & Maintainer Pathway](GOVERNANCE.md)
-- [Security Disclosure Policy](SECURITY.md)
-- [Technical Debt Register](TECHNICAL_DEBT.md)
-- [Component Status Matrix](docs/component-status.md)
+The detailed sequence and contribution-sized projects live in [ROADMAP.md](ROADMAP.md).
 
 ---
 
-## Community & Discussions
+## Documentation
 
-- **Discussions**: Use [GitHub Discussions](https://github.com/amandeavor/Aetheris-OS/discussions) for architecture ideas and questions.
-- **Issue Tracker**: Browse [`good first issue`](https://github.com/amandeavor/Aetheris-OS/labels/good%20first%20issue) and [`help wanted`](https://github.com/amandeavor/Aetheris-OS/labels/help%20wanted) tickets.
-- **Maintainership**: Interested in co-maintaining a specific subsystem? Review [GOVERNANCE.md](GOVERNANCE.md).
+- [Architecture overview](docs/01-architecture-overview.md)
+- [Component status](docs/component-status.md)
+- [Security model](docs/11-security.md)
+- [Benchmarking approach](docs/14-benchmarking.md)
+- [Technical debt register](TECHNICAL_DEBT.md)
 
 ---
 
-## License Status
+## Community and security
 
-A repository-level open-source license has not yet been selected. Resolving the repository license is a release blocker tracked in [ROADMAP.md](ROADMAP.md).
+Use [GitHub Discussions](https://github.com/amandeavor/Aetheris-OS/discussions) for design questions and ideas. Use issues for confirmed work. Please read the [Code of Conduct](CODE_OF_CONDUCT.md), and report vulnerabilities through the private process in [SECURITY.md](SECURITY.md).
+
+If this direction is useful to you, star the repository to follow its progress and help other Linux contributors discover it.
+
+---
+
+## License status
+
+A repository-level open-source license has not yet been selected. Until one is added, the code remains under its authors' default copyright and should not be redistributed. Resolving the license is a release blocker tracked in the roadmap.
