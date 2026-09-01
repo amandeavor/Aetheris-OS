@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: chwd_port/src/install_engine.rs
 use std::ffi::CString;
 use std::fs;

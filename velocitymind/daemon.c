@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: velocitymind/daemon.c
 #define _GNU_SOURCE
 #include <stdio.h>

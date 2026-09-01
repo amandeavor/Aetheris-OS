@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: velocitystore/src-tauri/src/xbps.rs
 // Rust FFI bindings and progress tracking wrapper for Void Linux's libxbps C library.
 

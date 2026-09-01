@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: velocitystore/src-tauri/src/flatpak.rs
 // Custom Rust INI parser to manage Flatpak application sandbox overrides.
 

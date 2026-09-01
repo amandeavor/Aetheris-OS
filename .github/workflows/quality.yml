@@ -26,6 +26,8 @@ jobs:
         run: cargo fmt --manifest-path chwd_port/Cargo.toml -- --check
       - name: Check Rust code
         run: cargo check --locked --manifest-path chwd_port/Cargo.toml
+      - name: Test hardware matching
+        run: cargo test --locked --manifest-path chwd_port/Cargo.toml
 
   preloader:
     name: VelocityMind

@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-or-later"
 
+[[bin]]
+name = "chwd_port"
+path = "src/main.rs"
+test = false
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: velocityinstall/src-tauri/src/partition.rs
 // Rust partition backend for Aetheris OS Installer using parted/cryptsetup and Btrfs layout.
 

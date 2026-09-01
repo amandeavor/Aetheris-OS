@@ -1,9 +1,11 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: chwd_port/src/main.rs
 mod install_engine;
-mod pci_profile;
-mod pci_scan;
 
-use pci_profile::{find_matching_profile, find_matching_usb_profile, DriverProfile};
+use chwd_port::pci_profile::{
+    self, find_matching_profile, find_matching_usb_profile, DriverProfile,
+};
+use chwd_port::pci_scan;
 use std::fs;
 use std::process::Command;
 
