@@ -14,7 +14,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 libc = "0.2"
 sqlite = "0.32"
-quick-xml = "0.31"
+quick-xml = "0.42"
 landlock = "0.3"
 
 
