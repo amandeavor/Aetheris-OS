@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Design question or early idea
+    url: https://github.com/amandeavor/Aetheris-OS/discussions
+    about: Start a discussion before opening work that changes project direction.
+  - name: Security vulnerability
+    url: https://github.com/amandeavor/Aetheris-OS/security/advisories/new
+    about: Report vulnerabilities privately. Do not open a public issue.

@@ -1,10 +1,10 @@
 // File: chwd_port/src/pci_profile.rs
+pub use crate::pci_scan::PciDevice;
+use regex::Regex;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-pub use crate::pci_scan::PciDevice;
-use regex::Regex;
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]

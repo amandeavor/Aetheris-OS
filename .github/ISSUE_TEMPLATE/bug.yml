@@ -1,0 +1,63 @@
+name: Bug report
+description: Report a reproducible problem in an Aetheris component
+title: "bug: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping make Aetheris more reliable. Do not include secrets or destructive reproduction steps against real data.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Hardware and driver setup (chwd_port)
+        - Preloader (velocitymind)
+        - Installer (velocityinstall)
+        - Software center (velocitystore)
+        - First-boot setup (velocitysetup)
+        - Package templates (srcpkgs)
+        - Desktop or system configuration
+        - ISO build pipeline
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Include the exact error and the smallest reproduction you can provide.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, architecture, component revision, relevant hardware, and whether this was a VM.
+      placeholder: "Void Linux glibc, x86_64, commit abc123, QEMU VM"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Remove usernames, hostnames, keys, tokens, and other private data.
+      render: shell
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I reproduced this without risking important data or a production machine.
+          required: true
+        - label: I searched existing issues for the same problem.
+          required: true
+        - label: I agree to follow the Code of Conduct.
+          required: true

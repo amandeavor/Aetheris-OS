@@ -1,0 +1,53 @@
+name: Feature proposal
+description: Propose a scoped improvement to an existing component
+title: "proposal: "
+labels: ["enhancement", "needs-discussion"]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Area
+      options:
+        - Hardware and driver setup
+        - Preloader and performance
+        - Installer
+        - Software center
+        - First-boot experience
+        - Packaging and releases
+        - Desktop experience
+        - Security
+        - Developer tooling and documentation
+        - New component
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the user or contributor problem before proposing an implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed direction
+      description: Explain the smallest useful change and any alternatives considered.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: How could we validate it?
+      description: Suggest tests, measurements, accessibility checks, or failure cases.
+    validations:
+      required: true
+  - type: checkboxes
+    id: participation
+    attributes:
+      label: Participation
+      options:
+        - label: I would be willing to help implement or test this.
+        - label: I searched existing issues and discussions first.
+          required: true
+        - label: I agree to follow the Code of Conduct.
+          required: true
