@@ -1,0 +1,52 @@
+name: Welcome First-Time Contributor
+
+on:
+  pull_request_target:
+    types: [opened]
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  welcome:
+    name: Orientation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check author association and welcome
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const payload = context.payload;
+            const isPR = !!payload.pull_request;
+            const target = payload.pull_request || payload.issue;
+            const author = target.user.login;
+            const association = target.author_association;
+
+            // Only greet first-time contributors / external newcomers, not repo owner or maintainers
+            const isNewcomer = association === 'FIRST_TIME_CONTRIBUTOR' || association === 'NONE';
+            if (!isNewcomer) return;
+
+            let welcomeMessage = '';
+            if (isPR) {
+              welcomeMessage = `👋 Welcome @${author}! Thank you for opening your first pull request on **Aetheris OS**.\n\n` +
+                `- Please ensure your changes align with the guidelines in [CONTRIBUTING.md](https://github.com/amandeavor/Aetheris-OS/blob/main/CONTRIBUTING.md).\n` +
+                `- For validation expectations and status tier criteria (\`exists / builds / tested / release-ready\`), see [docs/component-status.md](https://github.com/amandeavor/Aetheris-OS/blob/main/docs/component-status.md).\n\n` +
+                `A maintainer will review your pull request shortly!`;
+            } else {
+              welcomeMessage = `👋 Hi @${author}! Thank you for opening an issue on **Aetheris OS**.\n\n` +
+                `- If this is a bug report, please include reproduction steps, hardware specifications, and relevant log output.\n` +
+                `- For security disclosures or sensitive vulnerabilities, please refer to our [Security Policy](https://github.com/amandeavor/Aetheris-OS/blob/main/SECURITY.md).\n\n` +
+                `The team will triage this issue soon.`;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: target.number,
+              body: welcomeMessage
+            });

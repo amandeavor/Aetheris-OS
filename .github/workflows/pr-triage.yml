@@ -1,0 +1,73 @@
+name: PR Triage & Labeling
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  labeler:
+    name: Subsystem Labeler
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply Path-Based Labels
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          sync-labels: false
+
+  size-labeler:
+    name: Size Classifier
+    runs-on: ubuntu-latest
+    steps:
+      - name: Classify PR Diff Size
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const totalChanges = pr.additions + pr.deletions;
+
+            let sizeLabel = 'size/XS';
+            if (totalChanges >= 500) {
+              sizeLabel = 'size/XL';
+            } else if (totalChanges >= 200) {
+              sizeLabel = 'size/L';
+            } else if (totalChanges >= 50) {
+              sizeLabel = 'size/M';
+            } else if (totalChanges >= 10) {
+              sizeLabel = 'size/S';
+            }
+
+            const sizeLabels = ['size/XS', 'size/S', 'size/M', 'size/L', 'size/XL'];
+            const currentLabels = pr.labels.map(l => l.name);
+
+            // Remove previous size labels if changed
+            for (const label of sizeLabels) {
+              if (label !== sizeLabel && currentLabels.includes(label)) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: pr.number,
+                    name: label
+                  });
+                } catch (e) {
+                  // Ignore if label wasn't present
+                }
+              }
+            }
+
+            // Add new size label if not present
+            if (!currentLabels.includes(sizeLabel)) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: [sizeLabel]
+              });
+            }

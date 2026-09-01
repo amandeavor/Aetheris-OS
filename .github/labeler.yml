@@ -1,0 +1,68 @@
+# Path-based auto-labeling rules for Aetheris-OS
+# Powered by actions/labeler@v5
+
+"component: chwd":
+  - changed-files:
+      - any-glob-to-any-file: "chwd_port/**"
+
+"rust":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "chwd_port/**"
+          - "velocitysetup/**"
+          - "**/*.rs"
+          - "**/Cargo.toml"
+          - "**/Cargo.lock"
+
+"component: velocitymind":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "velocitymind/**"
+          - "etc/sv/velocitymind/**"
+
+"component: installer":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "velocityinstall/**"
+          - "velocitystore/**"
+          - "velocitysetup/**"
+
+"area: desktop":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "config/labwc/**"
+          - "config/sfwbar/**"
+          - "usr/bin/labwc-wrapper"
+
+"area: security":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "etc/apparmor.d/**"
+          - "etc/nftables.conf"
+          - "usr/bin/aetheris-uki-sign"
+
+"security":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "etc/apparmor.d/**"
+          - "etc/nftables.conf"
+          - "usr/bin/aetheris-uki-sign"
+          - "SECURITY.md"
+
+"area: docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "dev-plan/**"
+          - "*.md"
+
+"documentation":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "dev-plan/**"
+          - "*.md"
+
+"github_actions":
+  - changed-files:
+      - any-glob-to-any-file: ".github/**"
