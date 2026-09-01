@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /chwd_port
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+  - package-ecosystem: cargo
+    directory: /velocityinstall/src-tauri
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+  - package-ecosystem: cargo
+    directory: /velocitysetup
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+  - package-ecosystem: cargo
+    directory: /velocitystore/src-tauri
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3

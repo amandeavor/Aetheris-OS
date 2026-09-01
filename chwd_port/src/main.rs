@@ -1,11 +1,11 @@
 // File: chwd_port/src/main.rs
-mod pci_scan;
 mod install_engine;
 mod pci_profile;
+mod pci_scan;
 
+use pci_profile::{find_matching_profile, find_matching_usb_profile, DriverProfile};
 use std::fs;
 use std::process::Command;
-use pci_profile::{DriverProfile, PciDevice, UsbDevice, find_matching_profile, find_matching_usb_profile};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ChassisType {
@@ -66,7 +66,11 @@ fn apply_profile_with_prime_logic(
         .unwrap_or_default();
 
     // If it's a notebook chassis and this is a graphics driver, make sure switcheroo-control is present
-    if is_notebook && (profile.class_ids.as_ref().map_or(false, |c| c.contains(&"0300".to_string()) || c.contains(&"0302".to_string()))) {
+    if is_notebook
+        && (profile.class_ids.as_ref().map_or(false, |c| {
+            c.contains(&"0300".to_string()) || c.contains(&"0302".to_string())
+        }))
+    {
         if !packages.contains(&"switcheroo-control".to_string()) {
             packages.push("switcheroo-control".to_string());
         }
@@ -129,7 +133,11 @@ fn main() {
     // 2. Scan USB devices
     let usb_devices = pci_scan::scan_usb_bus().unwrap_or_default();
 
-    println!("Detected {} PCI devices and {} USB devices.", pci_devices.len(), usb_devices.len());
+    println!(
+        "Detected {} PCI devices and {} USB devices.",
+        pci_devices.len(),
+        usb_devices.len()
+    );
 
     // 3. Load driver profiles
     let system_profile_dir = "/usr/share/chwd/profiles/pci";
@@ -169,17 +177,34 @@ fn main() {
             let mut selected_profile = profile;
 
             // If on a notebook, try to prefer a .prime variant of the GPU driver profile
-            if is_notebook && (selected_profile.class_ids.as_ref().map_or(false, |c| c.contains(&"0300".to_string()) || c.contains(&"0302".to_string()))) {
+            if is_notebook
+                && (selected_profile.class_ids.as_ref().map_or(false, |c| {
+                    c.contains(&"0300".to_string()) || c.contains(&"0302".to_string())
+                }))
+            {
                 let prime_name = format!("{}.prime", selected_name);
-                if let Some((_, prime_prof)) = profiles.iter().find(|(name, _)| name == &prime_name) {
-                    println!("  -> Notebook detected, switching to PRIME profile: {}", prime_name);
+                if let Some((_, prime_prof)) = profiles.iter().find(|(name, _)| name == &prime_name)
+                {
+                    println!(
+                        "  -> Notebook detected, switching to PRIME profile: {}",
+                        prime_name
+                    );
                     selected_name = prime_name;
                     selected_profile = prime_prof.clone();
                 }
             }
 
-            println!("  -> Matched driver profile: {} ({})", selected_name, selected_profile.desc);
-            apply_profile_with_prime_logic(&selected_name, &selected_profile, is_notebook, &dev.vendor_id, &dev.device_id);
+            println!(
+                "  -> Matched driver profile: {} ({})",
+                selected_name, selected_profile.desc
+            );
+            apply_profile_with_prime_logic(
+                &selected_name,
+                &selected_profile,
+                is_notebook,
+                &dev.vendor_id,
+                &dev.device_id,
+            );
         } else {
             println!("  -> No specific driver profile matched. Device will use generic/fallback drivers.");
         }
@@ -187,10 +212,22 @@ fn main() {
 
     // 5. Resolve and apply USB profiles
     for dev in &usb_devices {
-        println!("USB Device {}: Vendor ID = {}, Product ID = {}", dev.address, dev.vendor_id, dev.product_id);
+        println!(
+            "USB Device {}: Vendor ID = {}, Product ID = {}",
+            dev.address, dev.vendor_id, dev.product_id
+        );
         if let Some((profile_name, profile)) = find_matching_usb_profile(dev, &profiles) {
-            println!("  -> Matched USB driver profile: {} ({})", profile_name, profile.desc);
-            apply_profile_with_prime_logic(&profile_name, &profile, is_notebook, &dev.vendor_id, &dev.product_id);
+            println!(
+                "  -> Matched USB driver profile: {} ({})",
+                profile_name, profile.desc
+            );
+            apply_profile_with_prime_logic(
+                &profile_name,
+                &profile,
+                is_notebook,
+                &dev.vendor_id,
+                &dev.product_id,
+            );
         }
     }
 }

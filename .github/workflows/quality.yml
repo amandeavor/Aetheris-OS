@@ -1,0 +1,63 @@
+name: Quality checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hardware-utility:
+    name: Hardware utility
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --component rustfmt
+      - name: Check formatting
+        run: cargo fmt --manifest-path chwd_port/Cargo.toml -- --check
+      - name: Check Rust code
+        run: cargo check --locked --manifest-path chwd_port/Cargo.toml
+
+  preloader:
+    name: VelocityMind
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install SQLite headers
+        run: sudo apt-get update && sudo apt-get install --yes libsqlite3-dev
+      - name: Build with strict warnings
+        run: make -C velocitymind CFLAGS="-Os -Wall -Wextra -Werror"
+
+  shell:
+    name: Shell scripts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install --yes shellcheck
+      - name: Check Bash syntax
+        shell: bash
+        run: |
+          mapfile -d '' scripts < <(find . -type f \( -name '*.sh' -o -path './usr/bin/*' -o -path './etc/sv/*/run' -o -path './etc/sv/*/finish' \) -print0)
+          for script in "${scripts[@]}"; do
+            first_line=$(head -n 1 "$script")
+            if [[ "$first_line" == '#!'*bash* ]]; then
+              bash -n "$script"
+            fi
+          done
+      - name: Run ShellCheck
+        shell: bash
+        run: |
+          mapfile -d '' scripts < <(find . -type f -name '*.sh' -print0)
+          shellcheck --severity=error "${scripts[@]}"

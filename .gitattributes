@@ -1,0 +1,4 @@
+*.sh text eol=lf
+usr/bin/* text eol=lf
+etc/sv/** text eol=lf
+etc/runit/**/*.sh text eol=lf

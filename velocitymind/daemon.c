@@ -145,6 +145,8 @@ void log_library_access(const char *app, const char *library_path) {
 
 // Background thread monitoring library accesses via fanotify
 void *library_monitor_thread(void *arg) {
+    (void)arg;
+
     int fan_fd = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY);
     if (fan_fd < 0) {
         perror("fanotify_init failed, library monitor disabled");

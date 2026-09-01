@@ -21,9 +21,15 @@ pub fn scan_pci_bus() -> Result<Vec<PciDevice>, std::io::Error> {
             let address = entry.file_name().to_string_lossy().into_owned();
 
             // Query vendor, device, and class registers from sysfs paths
-            let vendor = fs::read_to_string(path.join("vendor"))?.trim().replace("0x", "");
-            let device = fs::read_to_string(path.join("device"))?.trim().replace("0x", "");
-            let class = fs::read_to_string(path.join("class"))?.trim().replace("0x", "");
+            let vendor = fs::read_to_string(path.join("vendor"))?
+                .trim()
+                .replace("0x", "");
+            let device = fs::read_to_string(path.join("device"))?
+                .trim()
+                .replace("0x", "");
+            let class = fs::read_to_string(path.join("class"))?
+                .trim()
+                .replace("0x", "");
 
             // Extract the 4-digit base hardware class code
             let class_code = if class.len() >= 6 {
@@ -57,8 +63,14 @@ pub fn scan_usb_bus() -> Result<Vec<crate::pci_profile::UsbDevice>, std::io::Err
             let product_path = path.join("idProduct");
 
             if vendor_path.exists() && product_path.exists() {
-                let vendor = fs::read_to_string(vendor_path).unwrap_or_default().trim().to_string();
-                let product = fs::read_to_string(product_path).unwrap_or_default().trim().to_string();
+                let vendor = fs::read_to_string(vendor_path)
+                    .unwrap_or_default()
+                    .trim()
+                    .to_string();
+                let product = fs::read_to_string(product_path)
+                    .unwrap_or_default()
+                    .trim()
+                    .to_string();
 
                 if !vendor.is_empty() && !product.is_empty() {
                     devices.push(crate::pci_profile::UsbDevice {
