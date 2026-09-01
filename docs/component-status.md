@@ -5,7 +5,7 @@ This page records what can be validated today. It intentionally separates source
 | Component | What exists | Current limitations | Safe validation |
 | --- | --- | --- | --- |
 | `chwd_port` | sysfs PCI and USB scanning, TOML profiles, profile selection, package/service application | Linux and libxbps specific; matching needs fixture coverage; applying profiles changes the host | `cargo fmt --manifest-path chwd_port/Cargo.toml -- --check` and `cargo check --manifest-path chwd_port/Cargo.toml` |
-| `velocitymind` | SQLite transition storage, probability lookup, page-cache warming, focus-event hook | benchmark evidence and long-running behavior need validation | `make -C velocitymind` on Linux with SQLite headers |
+| `velocitymind` | SQLite transition storage, probability lookup, page-cache warming, focus-event hook | benchmark evidence and long-running behavior need validation | `make -C velocitymind` on Linux with SQLite headers; see `velocitymind/DEVELOPING.md` for safe, non-installing daemon and hook validation |
 | `velocityinstall` | Tauri backend, partition operations, Svelte interface fragments | no complete frontend build manifest; destructive paths need isolation and failure tests | source review only; use disposable block devices for future integration tests |
 | `velocitystore` | XBPS FFI, Flatpak overrides, AppStream parsing, Svelte interface fragments | no complete frontend build manifest; system integration is not validated | source review only on non-Void hosts |
 | `velocitysetup` | GTK/Libadwaita setup flow and NetworkManager interaction | Linux desktop dependencies and end-to-end first-boot flow are not automated | formatting plus compile checks on a prepared Void Linux host |
