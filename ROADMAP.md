@@ -4,7 +4,7 @@ The roadmap prioritizes a verifiable developer preview over feature count. Dates
 
 ## Now: make the repository reproducible
 
-- [ ] Select a repository license after reviewing the origin and compatibility of existing files.
+- [x] Select a repository license after reviewing the origin and compatibility of existing files (GNU GPL-3.0).
 - [ ] Document one supported Void Linux development environment.
 - [ ] Add fixture-based tests for PCI and USB profile matching.
 - [ ] Make Rust formatting and non-linking checks pass in CI.

@@ -11,6 +11,7 @@
 [![Language: Rust](https://img.shields.io/badge/language-Rust-DEA584?logo=rust&logoColor=black)](https://www.rust-lang.org/)
 [![Language: C](https://img.shields.io/badge/language-C-A8B9CC?logo=c&logoColor=black)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Display: Wayland](https://img.shields.io/badge/display-Wayland%20%2F%20Labwc-FFA500?logo=wayland&logoColor=white)](https://wayland.freedesktop.org/)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![Quality checks](https://github.com/amandeavor/Aetheris-OS/actions/workflows/quality.yml/badge.svg)](https://github.com/amandeavor/Aetheris-OS/actions/workflows/quality.yml)
 [![GitHub stars](https://img.shields.io/github/stars/amandeavor/Aetheris-OS?style=flat&label=stars)](https://github.com/amandeavor/Aetheris-OS/stargazers)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-2f81f7)](CONTRIBUTING.md)
@@ -173,6 +174,6 @@ If this direction is useful to you, star the repository to follow its progress a
 
 ---
 
-## License status
+## License
 
-A repository-level open-source license has not yet been selected. Until one is added, the code remains under its authors' default copyright and should not be redistributed. Resolving the license is a release blocker tracked in the roadmap.
+Aetheris OS is licensed under the [GNU General Public License v3.0 (GPL-3.0)](LICENSE).
