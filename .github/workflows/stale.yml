@@ -1,0 +1,35 @@
+name: Gentle Stale Management
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Every Sunday at midnight UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Stale Inactive Discussions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Triage Inactive Items
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 60
+          days-before-close: 14
+          stale-issue-message: >
+            This issue has been automatically marked as stale because it has been inactive for 60 days.
+            If this item is still relevant or pending further details, please comment to keep it open.
+          stale-pr-message: >
+            This pull request has been automatically marked as stale because it has been inactive for 60 days.
+            If this contribution is still active, please push an update or comment to keep it open.
+          close-issue-message: >
+            This issue has been closed due to inactivity. Feel free to reopen or create a new issue if you would like to revisit this.
+          close-pr-message: >
+            This pull request has been closed due to inactivity. Feel free to reopen when ready to proceed.
+          only-labels: 'needs-discussion,needs-triage,needs-info'
+          exempt-issue-labels: 'pinned,security,safety,release-blocker,help wanted,good first issue,maintainer-wanted'
+          exempt-pr-labels: 'pinned,security,safety,release-blocker,help wanted,good first issue,maintainer-wanted'
