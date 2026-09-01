@@ -17,7 +17,7 @@
 <p align="center">
   <a href="#overview">Overview</a> •
   <a href="#subsystems--components">Subsystems</a> •
-  <a href="#architecture">Architecture</a> •
+  <a href="#modular-pipeline">Architecture</a> •
   <a href="#contributor-quickstart">Quickstart</a> •
   <a href="#verification-matrix">Verification</a> •
   <a href="#roadmap--governance">Governance</a>
@@ -76,26 +76,19 @@ Most modern desktop distributions assemble upstream components with minimal inte
 
 ---
 
-## Modular Architecture
+## Modular Pipeline
 
-Each component is **completely decoupled** so you can develop, test, and contribute to individual subsystems without needing a full Void Linux virtual machine or building an entire ISO image.
+Each component is **completely decoupled** so you can develop, test, and contribute to individual subsystems without needing a full Void Linux virtual machine or building an entire ISO image:
 
-```mermaid
-flowchart TD
-    subgraph Hardware Layer
-        HW[PCI & USB Hardware] -->|sysfs / udev| CHWD[chwd_port Driver Utility]
-        CHWD -->|Applies| DRV[Kernel Modules & Driver Packages]
-    end
+```
+[ 1. Hardware Detection & Drivers ]
+  PCI & USB Hardware ──► sysfs/udev ──► chwd_port (Rust) ──► Kernel Modules & Profiles
 
-    subgraph Runtime Optimization
-        EV[Desktop Focus Events] -->|Records Transitions| VM[velocitymind Daemon]
-        VM -->|posix_fadvise / vfs| CACHE[Linux Page Cache]
-    end
+[ 2. Predictive Runtime Acceleration ]
+  Window Focus Events ──► Desktop Session ──► velocitymind (C) ──► Page Cache (posix_fadvise)
 
-    subgraph Desktop & Applications
-        STORE[VelocityStore UI] -->|Manages| XBPS[XBPS & Flatpak Ecosystem]
-        COMP[Labwc Wayland Compositor] -->|Renders| SHELL[Sfwbar Desktop Panel]
-    end
+[ 3. Desktop Shell & Application Management ]
+  Wayland Session ──► Labwc Compositor ──► Sfwbar Panel ──► VelocityStore (XBPS + Flatpak)
 ```
 
 ---
