@@ -1,3 +1,5 @@
+![Aetheris OS: Void Linux, Rust, Wayland](docs/assets/aetheris-social-preview.jpg)
+
 # Aetheris OS
 
 **A focused, experimental desktop system built on Void Linux.**
