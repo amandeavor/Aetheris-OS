@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: velocitystore/src-tauri/src/appstream.rs
 // SQLite database indexer for Linux AppStream XML metainfo.
 

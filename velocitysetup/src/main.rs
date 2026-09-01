@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: velocitysetup/src/main.rs
 // GTK4 + Libadwaita Out-of-Box Experience (OOBE) wizard for Aetheris OS.
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // File: chwd_port/src/pci_scan.rs
 use std::fs;
 use std::path::Path;
