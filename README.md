@@ -116,7 +116,7 @@ cargo check --locked --manifest-path chwd_port/Cargo.toml
 
 - [Implement spring-physics animation timing configuration](https://github.com/amandeavor/Aetheris-OS/issues/25)
 - [Document the hardware profile format](https://github.com/amandeavor/Aetheris-OS/issues/21)
-- [Add a safe VelocityMind development guide](https://github.com/amandeavor/Aetheris-OS/issues/22)
+- [VelocityMind safe local development guide](velocitymind/DEVELOPING.md) (issue #22 completed)
 - [Browse all good first issues](https://github.com/amandeavor/Aetheris-OS/labels/good%20first%20issue)
 
 On a Linux development host with SQLite headers installed, you can also compile the preloader daemon independently:
