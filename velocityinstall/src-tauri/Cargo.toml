@@ -16,6 +16,6 @@ regex = "1.10"
 uuid = { version = "1.7", features = ["v4"] }
 libc = "0.2"
 toml = "0.8"
-landlock = "0.3"
+landlock = "0.4"
 
 
